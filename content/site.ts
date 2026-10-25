@@ -370,7 +370,7 @@ const DISPLAY_MODE = "plain" as "photos" | "plain"
 
 // ── Shared images ───────────────────────────────────────────────────────────
 const BRAND = {
-  monogram: "/monogram/monogram.png",
+  monogram: "public/monogram/monogram-new-toall.png",
   coupleNameImage: "/Details/newcoupelNames.png", // couple-name lettering (loader, envelope)
   seal: "/monogram/wax-seal.png", // envelope wax seal
   backgroundMusic: "/background_music/Goodness Of God X Oceans X Gratitude (Wedding Entrance version).mp3",
