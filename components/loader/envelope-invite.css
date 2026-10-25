@@ -3141,3 +3141,108 @@
     radial-gradient(ellipse 55% 45% at 82% 92%, color-mix(in srgb, var(--env-shadow) 16%, transparent) 0%, transparent 52%),
     linear-gradient(175deg, var(--env-highlight) 0%, var(--env-envelope) 30%, var(--env-base) 68%, var(--env-fold) 100%);
 }
+
+/* ── Envelope paper: no white wash ───────────────────────────────────────────
+   Every face used to start from a near-white highlight plus white sheen layers,
+   which read as a white gradient over the blush paper. Here the lit edge is a
+   light rose, shading comes from rose/cocoa tones only, and a fine grain and
+   rose-gold details give the paper some texture. Kept last so it wins. */
+.env-invite-screen .env-invite-envelope {
+  --env-highlight: color-mix(in srgb, #F5C5C3 78%, #F69F9D);
+  --env-envelope: color-mix(in srgb, #F5C5C3 70%, #F69F9D);
+  --env-rose-gold: color-mix(in srgb, #C9746E 70%, #E8B9A0);
+  --env-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .25 0 0 0 0 .28 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Closed front: even rose paper, gentle depth toward the bottom and corners */
+.env-invite-screen .env-invite-envelope .env-invite-front-closed {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 50%, transparent 55%, color-mix(in srgb, var(--env-shadow) 22%, transparent) 100%),
+    radial-gradient(ellipse 60% 45% at 50% 100%, color-mix(in srgb, var(--env-shadow) 18%, transparent) 0%, transparent 70%),
+    linear-gradient(180deg, var(--env-highlight) 0%, var(--env-envelope) 35%, var(--env-base) 75%, var(--env-fold) 100%);
+}
+
+.env-invite-screen .env-invite-envelope .env-invite-front-closed::before,
+.env-invite-screen .env-invite-envelope .env-invite-back::before {
+  opacity: 0.22;
+  background: var(--env-grain) 0 0 / 120px 120px repeat;
+  mix-blend-mode: multiply;
+}
+
+/* Rose-gold stitching instead of white */
+.env-invite-screen .env-invite-envelope .env-invite-front-closed::after {
+  border-color: color-mix(in srgb, var(--env-rose-gold) 55%, transparent);
+}
+
+/* Fold faces: cocoa shading only, no white highlight */
+.env-invite-screen .env-invite-envelope .env-invite-fold--tl {
+  background: linear-gradient(180deg, transparent 0%, rgb(120 50 60 / 8%) 100%);
+}
+
+/* Crease hairlines: soft rose shadow, not white */
+.env-invite-screen .env-invite-envelope .env-invite-creases line {
+  stroke: color-mix(in srgb, var(--env-shadow) 45%, transparent);
+}
+
+/* Top flap: solid paper, darkening toward the tip, with a rose-gold rim at the fold */
+.env-invite-screen .env-invite-envelope .env-invite-flap {
+  background:
+    linear-gradient(180deg, transparent 60%, color-mix(in srgb, var(--env-shadow) 22%, transparent) 100%),
+    linear-gradient(170deg, var(--env-highlight) 0%, var(--env-envelope) 40%, var(--env-base) 100%);
+  box-shadow:
+    inset 0 -12px 20px color-mix(in srgb, var(--env-shadow) 22%, transparent),
+    inset 0 2px 0 color-mix(in srgb, var(--env-rose-gold) 45%, transparent);
+}
+
+/* Cast shadow of the closed flap onto the front, a touch stronger for depth */
+.env-invite-screen .env-invite-envelope .env-invite-flap-shadow {
+  background: linear-gradient(180deg, transparent 40%, rgb(120 50 60 / 20%) 100%);
+  transform: translateY(4px);
+  filter: blur(3px);
+}
+
+/* Open pocket: no white sheen */
+.env-invite-screen .env-invite-envelope .env-invite-pocket-front {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--env-shadow) 14%, transparent) 0%, transparent 18%),
+    linear-gradient(180deg, var(--env-highlight) 0%, var(--env-base) 45%, var(--env-fold) 100%);
+}
+
+.env-invite-screen .env-invite-envelope .env-invite-pocket-left {
+  background:
+    linear-gradient(125deg, rgb(120 50 60 / 8%) 0%, transparent 58%),
+    linear-gradient(160deg, var(--env-highlight) 0%, var(--env-envelope) 55%, var(--env-base) 100%);
+}
+
+.env-invite-screen .env-invite-envelope .env-invite-pocket-right {
+  background:
+    linear-gradient(235deg, rgb(120 50 60 / 8%) 0%, transparent 58%),
+    linear-gradient(200deg, var(--env-highlight) 0%, var(--env-envelope) 55%, var(--env-base) 100%);
+}
+
+.env-invite-screen .env-invite-envelope .env-invite-pocket-left::after {
+  background: linear-gradient(to bottom right, transparent 48%, rgb(120 50 60 / 14%) 49.5%, transparent 51.5%);
+}
+
+.env-invite-screen .env-invite-envelope .env-invite-pocket-right::after {
+  background: linear-gradient(to bottom left, transparent 48%, rgb(120 50 60 / 14%) 49.5%, transparent 51.5%);
+}
+
+/* Liner (inside of back + flap): drop the white overlay, keep the lattice */
+.env-invite-screen[data-phase="flap-open"] .env-invite-envelope .env-invite-back,
+.env-invite-screen[data-phase="rising"] .env-invite-envelope .env-invite-back,
+.env-invite-screen[data-phase="photos"] .env-invite-envelope .env-invite-back,
+.env-invite-screen[data-phase="revealed"] .env-invite-envelope .env-invite-back,
+.env-invite-screen[data-phase="cta"] .env-invite-envelope .env-invite-back {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--env-liner-ink) 18%, transparent) 0%, transparent 25%, color-mix(in srgb, var(--env-liner-ink) 16%, transparent) 100%),
+    var(--env-liner-pattern) center top / 32px 32px repeat,
+    var(--env-liner);
+}
+
+.env-invite-screen .env-invite-envelope .env-invite-flap::before {
+  background:
+    linear-gradient(0deg, color-mix(in srgb, var(--env-liner-ink) 14%, transparent) 0%, transparent 45%),
+    var(--env-liner-pattern) center top / 32px 32px repeat,
+    var(--env-liner);
+}

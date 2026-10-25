@@ -367,13 +367,18 @@ function NameItem({
   const displayName = toDisplayName(member.name)
   const displayRole = member.roleTitle ? toDisplayName(member.roleTitle) : ""
   return (
+    // The observed box never moves: the slide-in lives on the inner layer, so a clipped
+    // wrapper (overflow-hidden) can't keep a small name from counting as "in view" on mobile
+    <motion.div
+      className="min-w-0 w-full max-w-full"
+      initial="hidden"
+      whileInView="show"
+      viewport={REVEAL_VIEWPORT}
+    >
     <motion.div
       className={`relative flex flex-col ${containerAlign} justify-center py-0.5 sm:py-1.5 min-w-0 w-full max-w-full group/item`}
       variants={nameReveal}
       custom={align}
-      initial="hidden"
-      whileInView="show"
-      viewport={REVEAL_VIEWPORT}
     >
       <div
         className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 rounded-md"
@@ -411,6 +416,7 @@ function NameItem({
           />
         </p>
       )}
+    </motion.div>
     </motion.div>
   )
 }
