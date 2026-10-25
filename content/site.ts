@@ -373,7 +373,7 @@ const BRAND = {
   monogram: "/monogram/monogram.png",
   coupleNameImage: "/Details/newcoupelNames.png", // couple-name lettering (loader, envelope)
   seal: "/monogram/wax-seal.png", // envelope wax seal
-  backgroundMusic: "/Details/Goodness Of God X Oceans X Gratitude (Wedding Entrance version).mp3",
+  backgroundMusic: "/background_music/Goodness Of God X Oceans X Gratitude (Wedding Entrance version).mp3",
 }
 
 // Couple photos reused across the site (gallery, loader, reminders, snap & share, closing)
