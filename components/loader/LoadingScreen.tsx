@@ -10,6 +10,7 @@ import { siteConfig as defaultSiteConfig } from '@/content/site';
 import { PhotoMarquee } from '@/components/loader/invite-photo-backdrop';
 import { BackgroundVideo } from '@/components/background-video';
 import { TintedDeco } from '@/components/tinted-deco';
+import { NavyInvite } from '@/components/loader/NavyInvite';
 import './loading-screen.css';
 
 const theSeasons = localFont({
@@ -100,6 +101,9 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
   const plainTheme = content.plainTheme ?? defaultSiteConfig.loadingScreen.plainTheme;
   const cornerDecos = content.cornerDecos ?? defaultSiteConfig.loadingScreen.cornerDecos;
   const plainInvite = content.plainInvite ?? defaultSiteConfig.loadingScreen.plainInvite;
+  // Plain mode can use the navy & rose-gold invitation card instead of the light botanical one
+  const isNavy = isPlain && (content.plainLayout ?? defaultSiteConfig.loadingScreen.plainLayout) === 'navy';
+  const navyInvite = content.navyInvite ?? defaultSiteConfig.loadingScreen.navyInvite;
 
   const reduceMotion = useReducedMotion();
   const [fadeOut, setFadeOut] = useState(false);
@@ -214,6 +218,35 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
     };
   }, [isPlain, onComplete, onFadeStart, reduceMotion, totalDurationMs]);
 
+  if (isNavy) {
+    return (
+      <div
+        className={`loading-screen loading-screen--navy fixed inset-0 z-50 flex flex-col overflow-hidden overscroll-none h-dvh max-h-dvh w-screen${fadeOut ? ' is-fading' : ''}${reduceMotion ? ' is-reduced-motion' : ''}`}
+        aria-live="polite"
+        aria-busy={!fadeOut}
+        aria-label="Loading invitation"
+        style={{ pointerEvents: fadeOut ? 'none' : 'auto' }}
+      >
+        <NavyInvite
+          invite={navyInvite}
+          groom={siteConfig.couple.groomNickname}
+          bride={siteConfig.couple.brideNickname}
+          weddingDate={hasValidDate ? weddingDate : null}
+          ceremonyTime={ceremonyLine}
+          venueName={content.showCeremonyDetails ? siteConfig.ceremony.location ?? '' : ''}
+          venueAddress={content.showCeremonyDetails ? siteConfig.ceremony.venue ?? '' : ''}
+          countdownText={countdownText}
+          statusMessage={statusMessages[statusIndex]}
+          statusKey={statusIndex}
+          durationMs={totalDurationMs}
+          reduceMotion={!!reduceMotion}
+          // Loader keeps the plain deep-blue sky; the photo marquee starts at the envelope
+          photos={[]}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`loading-screen loading-screen--invitation${isPlain ? ' loading-screen--plain' : ''} fixed inset-0 z-50 flex flex-col overflow-hidden overscroll-none h-dvh max-h-dvh w-screen${fadeOut ? ' is-fading' : ''}${reduceMotion ? ' is-reduced-motion' : ''}`}
@@ -254,7 +287,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
               ] as const
             ).map(({ src, className }) => (
               <div
-                key={src}
+                key={className}
                 className={`loading-screen__plain-corner-slot pointer-events-none absolute ${className}`}
               >
                 <TintedDeco src={src} className="loading-screen__plain-corner-img" />

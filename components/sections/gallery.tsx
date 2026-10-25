@@ -3,15 +3,14 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
-import Link from "next/link"
 import localFont from "next/font/local"
 import { X, ChevronLeft, ChevronRight, Camera, Maximize2 } from "lucide-react"
 import { Cinzel } from "next/font/google"
 import { Section } from "@/components/section"
 import { sectionType } from "@/lib/section-typography"
 import { useSiteConfig } from "@/hooks/use-site-config"
-import { TintedDeco } from "@/components/tinted-deco"
 import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { CornerFlorals } from "@/components/corner-florals"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -31,12 +30,13 @@ const aboveTheBeyond = localFont({
 })
 
 // Palette lives in globals.css → motif / welcome tokens.
+// The header sits on the navy part of the sky (light ink); the footnote on the blush (navy ink).
 const C = {
-  title: "var(--color-welcome-navy)",
-  script: "var(--color-welcome-script)",
-  eyebrow: "var(--color-welcome-heading)",
-  body: "var(--color-welcome-text)",
-  soft: "var(--color-welcome-text)",
+  title: "var(--color-motif-soft)",
+  script: "var(--color-motif-accent)",
+  eyebrow: "var(--color-motif-accent)",
+  body: "color-mix(in srgb, var(--color-motif-soft) 92%, transparent)",
+  soft: "var(--color-welcome-navy)",
   accent: "var(--color-motif-accent)",
   leaf: "var(--color-motif-yellow)",
   blue: "var(--color-welcome-heading)",
@@ -48,8 +48,8 @@ const C = {
 // Same circle pattern as the video / love story / details sections (PlainBubbles paints the base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
-// Soft white edge so text stays crisp over the circles
-const onBgGlow = "0 1px 0 rgb(255 255 255 / 85%), 0 0 12px rgb(255 255 255 / 70%)"
+// Navy edge so the light header text stays crisp over the navy sky
+const onNavyGlow = "0 1px 2px rgb(1 46 75 / 85%), 0 0 18px rgb(1 46 75 / 60%)"
 
 // Sage hairlines either side of a sunshine diamond
 const lineRight = {
@@ -98,13 +98,6 @@ function PhotoNumber({ index, total, visible }: { index: number; total: number; 
   )
 }
 
-const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
-
-function DecoImg({ src, className }: { src: string; className: string }) {
-  return <TintedDeco src={src} className={className} />
-}
-
 function DiamondDivider({ children }: { children?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-center gap-2">
@@ -137,7 +130,7 @@ function GalleryTitle({ title, subtitle }: { title: string; subtitle: string }) 
       <span
         aria-hidden
         className={`${theSeasons.className} block uppercase leading-[0.9] tracking-[0.04em] min-[400px]:tracking-[0.08em] sm:tracking-[0.12em] md:tracking-[0.14em]`}
-        style={{ fontSize: "var(--title-size)", color: C.title, textShadow: onBgGlow }}
+        style={{ fontSize: "var(--title-size)", color: C.title, textShadow: onNavyGlow }}
       >
         {title}
       </span>
@@ -147,7 +140,7 @@ function GalleryTitle({ title, subtitle }: { title: string; subtitle: string }) 
         style={{
           fontSize: "var(--script-size)",
           color: C.script,
-          textShadow: onBgGlow,
+          textShadow: onNavyGlow,
         }}
       >
         {subtitle}
@@ -283,7 +276,6 @@ function MobileInfiniteCarousel({
             <ChevronLeft className="gallery-swipe-arrow gallery-swipe-arrow--left h-4 w-4" aria-hidden />
             <span
               className={`${cinzel.className} text-[0.62rem] font-semibold uppercase tracking-[0.3em]`}
-              style={{ textShadow: onBgGlow }}
             >
               Swipe to explore
             </span>
@@ -471,7 +463,7 @@ function DesktopSpotlight({
 export function Gallery() {
   const { gallery } = useSiteConfig()
   const galleryItems: GalleryItem[] = gallery.images
-  const decos = gallery.decos
+  const cornerDecos = gallery.cornerDecos
 
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -587,32 +579,17 @@ export function Gallery() {
       <PlainBubbles />
       <Section
         id="gallery"
-        className="relative z-10 overflow-hidden pt-14 pb-10 sm:pt-16 sm:pb-12 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20"
+        // Extra top / bottom room so the corner florals clear the header and footnote
+        className="relative z-10 overflow-hidden pt-24 pb-28 sm:pt-28 sm:pb-36 md:pt-32 md:pb-44 lg:pt-36 lg:pb-52"
       >
-        {/* Corner decorations */}
-        <div className="pointer-events-none absolute left-0 top-0 z-10">
-          <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute right-0 top-0 z-10">
-          <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-          <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-          <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
-        </div>
+        <CornerFlorals decos={cornerDecos} compact />
 
       {/* Header */}
       <div className="relative z-20 mx-auto mb-8 max-w-5xl px-3 text-center sm:mb-10 sm:px-4 md:mb-12">
-        <DecoImg
-          src={decos.headerOrnament}
-          className="mx-auto mb-3 block h-auto w-28 select-none sm:mb-4 sm:w-36 md:w-44"
-        />
         <DiamondDivider />
         <p
           className={`${cinzel.className} mx-auto mt-4 max-w-[20rem] px-2 text-[0.6875rem] font-semibold leading-snug tracking-[0.12em] uppercase min-[400px]:max-w-none min-[400px]:text-[0.75rem] min-[400px]:tracking-[0.16em] sm:mt-5 sm:text-[0.9375rem] sm:tracking-[0.2em] md:text-base md:tracking-[0.22em]`}
-          style={{ color: C.eyebrow, textShadow: onBgGlow }}
+          style={{ color: C.eyebrow, textShadow: onNavyGlow }}
         >
           {gallery.eyebrow}
         </p>
@@ -621,7 +598,7 @@ export function Gallery() {
         </div>
         <p
           className={`font-goudy-italic mx-auto mt-4 max-w-xl px-2 sm:mt-5 md:mt-6 ${sectionType.textRelaxed}`}
-          style={{ color: C.body, textShadow: onBgGlow }}
+          style={{ color: C.body, textShadow: onNavyGlow }}
         >
           {gallery.description}
         </p>
@@ -668,31 +645,13 @@ export function Gallery() {
             {/* Tablet/Desktop: featured slideshow beside the full photo grid */}
             <DesktopSpotlight items={galleryItems} onOpen={openLightbox} />
 
-            <div className="mt-10 flex justify-center sm:mt-12 md:mt-14">
-              <Link
-                href={gallery.buttonHref}
-                className={`${cinzel.className} inline-flex items-center justify-center rounded-full border px-8 py-3 text-[0.625rem] font-semibold uppercase tracking-[0.18em] transition-all duration-300 hover:scale-[1.03] hover:brightness-110 active:scale-[0.98] sm:text-[0.6875rem] sm:tracking-[0.22em]`}
-                style={{
-                  background: C.blue,
-                  borderColor: "rgb(255 255 255 / 70%)",
-                  color: "#FFFFFF",
-                  boxShadow: "0 0 0 4px rgb(255 255 255 / 35%), 0 10px 22px -10px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
-                }}
-              >
-                {gallery.buttonText}
-              </Link>
-            </div>
 
             <p
-              className={`font-goudy-italic mx-auto mt-6 max-w-lg px-2 text-center leading-relaxed sm:mt-8 ${sectionType.textRelaxed}`}
-              style={{ color: C.soft, textShadow: onBgGlow }}
+              className={`font-goudy-italic mx-auto mt-8 max-w-lg px-2 text-center leading-relaxed sm:mt-10 ${sectionType.textRelaxed}`}
+              style={{ color: C.soft }}
             >
               {gallery.footnote}
             </p>
-            <DecoImg
-              src={decos.footerVine}
-              className="mx-auto mt-6 block h-auto w-56 select-none opacity-90 sm:mt-8 sm:w-72 md:w-96"
-            />
           </>
         )}
       </div>

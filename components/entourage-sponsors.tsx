@@ -322,7 +322,7 @@ function FormSheet({
 }
 
 export function EntourageSponsors({
-  entourage,
+  entourage: entourageRows,
   principalSponsors,
   sponsorsList,
   onSponsorsListChange,
@@ -330,6 +330,20 @@ export function EntourageSponsors({
   onRefreshSponsors,
   isLoading,
 }: EntourageSponsorsProps) {
+  // Keep only real entourage rows: a sheet that returns other data (e.g. sponsor pairs)
+  // or a blank row has no Name, and every card below reads member.Name
+  const entourage = useMemo(
+    () =>
+      (Array.isArray(entourageRows) ? entourageRows : [])
+        .filter((m) => typeof m?.Name === "string" && m.Name.trim() !== "")
+        .map((m) => ({
+          Name: m.Name,
+          RoleCategory: m.RoleCategory ?? "",
+          RoleTitle: m.RoleTitle ?? "",
+          Email: m.Email ?? "",
+        })),
+    [entourageRows],
+  )
   const [activeSubTab, setActiveSubTab] = useState<Tab>("entourage")
   const sponsorsApi = `/api/principal-sponsor?list=${sponsorsList}`
   const [searchQuery, setSearchQuery] = useState("")

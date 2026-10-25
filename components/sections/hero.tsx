@@ -8,6 +8,7 @@ import { useSiteConfig } from "@/hooks/use-site-config"
 import { parseWeddingDate } from "@/lib/wedding-date"
 import { InvitePhotoBackdrop } from "@/components/loader/invite-photo-backdrop"
 import { BackgroundVideo } from "@/components/background-video"
+import { NavyMarquee } from "@/components/loader/navy-marquee"
 import { siteConfig as defaultSiteConfig } from "@/content/site"
 import "@/components/loader/loading-screen.css"
 import { TintedDeco } from "@/components/tinted-deco"
@@ -218,6 +219,17 @@ export function Hero() {
     loading.cornerDecos ?? defaultSiteConfig.loadingScreen.cornerDecos
   const backgroundPhotos = loading.backgroundPhotos ?? []
   const reduceMotion = useReducedMotion()
+  // Navy loader's photo marquee carries on from the loader and envelope (instead of the video)
+  const navyMarqueePhotos = useMemo(
+    () =>
+      isPlain &&
+      (loading.plainLayout ?? defaultSiteConfig.loadingScreen.plainLayout) === "navy" &&
+      (loading.navyInvite ?? defaultSiteConfig.loadingScreen.navyInvite).backgroundMarquee !== false
+        ? backgroundPhotos.map((src) => encodeURI(src))
+        : [],
+    [isPlain, loading.plainLayout, loading.navyInvite, backgroundPhotos],
+  )
+  const showNavyMarquee = navyMarqueePhotos.length > 0
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -250,11 +262,15 @@ export function Hero() {
   return (
     <section
       id="home"
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} home-hero relative -mt-12 flex min-h-[100dvh] w-full flex-col overflow-hidden sm:-mt-14 md:-mt-16${isPlain ? " home-hero--plain" : " home-hero--photos"}`}
+      className={`${theSeasons.variable} ${aboveTheBeyond.variable} home-hero relative -mt-12 flex min-h-[100dvh] w-full flex-col overflow-hidden sm:-mt-14 md:-mt-16${isPlain ? " home-hero--plain" : " home-hero--photos"}${showNavyMarquee ? " home-hero--marquee" : ""}`}
     >
       {isPlain ? (
         <>
-          <BackgroundVideo veil={0.45} />
+          {showNavyMarquee ? (
+            <NavyMarquee photos={navyMarqueePhotos} reduceMotion={!!reduceMotion} />
+          ) : (
+            <BackgroundVideo veil={0.45} />
+          )}
           <div className="home-hero-plain-corners" aria-hidden="true">
             {(
               [
@@ -262,7 +278,7 @@ export function Hero() {
                 { src: cornerDecos.topRight, className: "right-0 top-0" },
               ] as const
             ).map(({ src, className }) => (
-              <TintedDeco key={src} src={src} className={`home-hero-plain-corner-img absolute ${className}`} />
+              <TintedDeco key={className} src={src} className={`home-hero-plain-corner-img absolute ${className}`} />
             ))}
           </div>
         </>

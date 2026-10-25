@@ -69,6 +69,8 @@ interface StorySectionProps {
   eucalyptusDecos?: LoveStoryEucalyptusDecos
   // Word before the number on plain cards, e.g. "Chapter" → "Chapter 01"
   chapterLabelText?: string
+  // Plain mode: chapter sits on the navy part of the sky → white / pink text
+  onNavy?: boolean
 }
 
 function PlainEucalyptusDecos({ decos }: { decos: LoveStoryEucalyptusDecos }) {
@@ -113,6 +115,7 @@ function PlainOpenChapter({
   isLast,
   chapterIndex,
   fallbackLabel,
+  onNavy,
 }: {
   imageSrc?: string
   imageAlt?: string
@@ -123,14 +126,18 @@ function PlainOpenChapter({
   isLast: boolean
   chapterIndex: number
   fallbackLabel: string
+  onNavy: boolean
 }) {
   const reduceMotion = useReducedMotion()
   const photoFrom = reduceMotion ? { opacity: 1, x: 0, rotate: 0 } : { opacity: 0, x: photoLeft ? -40 : 40, rotate: 0 }
   const textFrom = reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }
   const tilt = photoLeft ? -2.5 : 2.5
+  const dividerLine = onNavy
+    ? "color-mix(in srgb, var(--color-motif-accent) 70%, transparent)"
+    : "color-mix(in srgb, var(--color-welcome-navy) 45%, transparent)"
 
   return (
-    <div className={`${theSeasons.variable} story-open relative z-[2] px-4 sm:px-6 md:px-10`}>
+    <div className={`${theSeasons.variable} story-open${onNavy ? " story-open--on-navy" : ""} relative z-[2] px-4 sm:px-6 md:px-10`}>
       <div
         className={`mx-auto flex max-w-5xl items-center gap-4 py-8 sm:gap-8 sm:py-12 md:gap-14 md:py-16 ${
           photoLeft ? "flex-row" : "flex-row-reverse"
@@ -145,7 +152,8 @@ function PlainOpenChapter({
             transition={{ duration: 0.95, ease: revealEase }}
           >
             <div className="story-open-photo">
-              <div className="relative aspect-[4/5] w-full overflow-hidden">
+              {/* Portrait photos: full 9:16 on phones, a gentler crop on wider screens */}
+              <div className="relative aspect-[9/16] w-full overflow-hidden md:aspect-[3/4]">
                 <Image
                   src={encodeURI(imageSrc)}
                   alt={imageAlt || "Story moment"}
@@ -161,7 +169,7 @@ function PlainOpenChapter({
         ) : null}
 
         <motion.div
-          className={`min-w-0 flex-1 ${photoLeft ? "text-left" : "text-right"}`}
+          className={`min-w-0 flex-1 ${!imageSrc ? "mx-auto max-w-xl text-center" : photoLeft ? "text-left" : "text-right"}`}
           initial={textFrom}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10%" }}
@@ -174,7 +182,7 @@ function PlainOpenChapter({
             <h2 className={`${theSeasons.className} story-open-title`}>{title}</h2>
           ) : null}
           <span
-            className={`story-open-rule ${photoLeft ? "" : "ml-auto"}`}
+            className={`story-open-rule ${!imageSrc ? "mx-auto" : photoLeft ? "" : "ml-auto"}`}
             aria-hidden
           />
           <div className={`font-goudy-italic story-open-text ${sectionType.textRelaxed}`}>{text}</div>
@@ -182,10 +190,11 @@ function PlainOpenChapter({
       </div>
 
       {!isLast && (
+        // Navy hairlines + white dot on the blush sky; pink hairlines on the navy
         <div className="flex items-center justify-center gap-1.5" aria-hidden>
-          <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-yellow))" }} />
-          <span className="h-1 w-1 rounded-full sm:h-1.5 sm:w-1.5" style={{ background: "var(--color-motif-accent)" }} />
-          <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-yellow))" }} />
+          <span className="h-px w-10 sm:w-16" style={{ background: `linear-gradient(to right, transparent, ${dividerLine})` }} />
+          <span className="h-1 w-1 rotate-45 sm:h-1.5 sm:w-1.5" style={{ background: "#FFFFFF", boxShadow: `0 0 0 1px ${dividerLine}` }} />
+          <span className="h-px w-10 sm:w-16" style={{ background: `linear-gradient(to left, transparent, ${dividerLine})` }} />
         </div>
       )}
     </div>
@@ -206,6 +215,7 @@ export const StorySection: React.FC<StorySectionProps> = ({
   chapterIndex = 0,
   eucalyptusDecos,
   chapterLabelText = "Chapter",
+  onNavy = false,
 }) => {
   const reduceMotion = useReducedMotion()
 
@@ -221,6 +231,7 @@ export const StorySection: React.FC<StorySectionProps> = ({
         isLast={isLast}
         chapterIndex={chapterIndex}
         fallbackLabel={`${chapterLabelText} ${String(chapterIndex + 1).padStart(2, "0")}`}
+        onNavy={onNavy}
       />
     )
   }

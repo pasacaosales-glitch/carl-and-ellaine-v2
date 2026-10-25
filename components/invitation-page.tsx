@@ -13,7 +13,6 @@ import { AppState } from "@/components/types"
 import { prefetchInvitationData } from "@/lib/invitation-data"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { WeddingPlaylist } from "@/components/sections/wedding-playlist"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
 import type { SponsorsList } from "@/components/sections/entourage"
 
 const Silk = dynamic(() => import("@/components/silk"), { ssr: false })
@@ -87,7 +86,7 @@ const sectionsRevealVariants = {
 }
 
 /** WebGL Silk needs a hex color. */
-const SILK_COLOR = "#4E86B7"
+const SILK_COLOR = "#012E4B"
 
 type InvitationPageProps = {
   /** Which principal-sponsor sheet the entourage shows (googleAPI.sponsorsInviteOne / Two) */
@@ -260,26 +259,26 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
                 transition={cinematicEntry ? undefined : { duration: 0.01 }}
               >
                <Welcome />
-              {/* One continuous circle pattern behind the video and love story (same as Details) — no seam between them */}
-              <div className="relative">
-                <PlainBubbles />
-                <CoupleVideo skyBackdrop={false} />
-                <LoveStory skyBackdrop={false} />
-              </div>
+              {/* <CoupleVideo /> */}
+              {/* LoveStory paints its own sky (an outer PlainBubbles would cover it) */}
+              <LoveStory />
               <Countdown />
               <Gallery />
+              <Messages />
               {/* Details includes the Attire Guidelines and Gentle Reminders */}
               <Details />
               <WeddingTimeline />
               {showEntourage && <Entourage sponsorsList={sponsorsList} />}
-              <Registry />
               <GuestList />
-              {/* <BookOfGuests /> */}
-              {/* <MessageVideo /> */}
-              <Messages />
-              <SnapShare />
+              <BookOfGuests />
+              <Registry />
               <FAQ />
               <WeddingPlaylist />
+              {/* <MessageVideo /> */}
+
+              <SnapShare />
+
+
               <SeeYouThere />
               <Footer />
               </motion.div>

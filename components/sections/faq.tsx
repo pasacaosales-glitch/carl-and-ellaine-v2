@@ -8,7 +8,7 @@ import localFont from "next/font/local"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
 import { PlainBubbles } from "@/components/loader/PlainBubbles"
-import { TintedDeco } from "@/components/tinted-deco"
+import { CornerFlorals } from "@/components/corner-florals"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -40,13 +40,14 @@ const SKY_TINT = (pct: number) => `color-mix(in srgb, var(--color-motif-medium) 
 // Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
-// Text sitting directly on the circle pattern: navy (or dusty blue) with a soft white edge
-const textGlow = "0 1px 0 rgb(255 255 255 / 90%), 0 0 12px rgb(255 255 255 / 75%)"
+// Text sitting directly on the navy part of the sky: light ink with a navy edge
+const textGlow = "0 1px 2px rgb(1 46 75 / 85%), 0 0 18px rgb(1 46 75 / 60%)"
 const onBg = {
-  color: "var(--color-welcome-navy)",
+  color: "var(--color-motif-soft)",
   textShadow: textGlow,
 } as const
-const onBgBlue = { color: "var(--color-welcome-heading)", textShadow: textGlow } as const
+// Eyebrow + script lines on the navy pick up the blush accent
+const onBgBlue = { color: "var(--color-motif-accent)", textShadow: textGlow } as const
 
 const cardStyle = {
   background:
@@ -59,9 +60,6 @@ const cardStyle = {
 const dividerLineStyle = {
   background: "linear-gradient(to right, transparent, var(--color-motif-yellow), transparent)",
 } as const
-
-const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
 
 const ct = {
   body: sectionType.textRelaxed,
@@ -85,17 +83,13 @@ const itemVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease } },
 }
 
-function DecoImg({ src, className }: { src: string; className: string }) {
-  return <TintedDeco src={src} className={className} />
-}
-
 // Sage hairlines either side of a sunshine diamond
 function DiamondDivider() {
   return (
     <div className="flex items-center justify-center gap-2" aria-hidden>
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-yellow))" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-accent))" }} />
       <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-motif-accent)" }} />
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-yellow))" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-accent))" }} />
     </div>
   )
 }
@@ -199,7 +193,7 @@ function FaqAnswer({ answer }: { answer: string }) {
 export function FAQ() {
   const siteConfig = useSiteConfig()
   const content = siteConfig.faq
-  const { decos } = content
+  const { cornerDecos } = content
   const reduceMotion = useReducedMotion()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
@@ -226,21 +220,10 @@ export function FAQ() {
       <PlainBubbles />
       <section
         id="faq"
-        className="relative z-10 overflow-hidden pt-14 pb-12 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20"
+        // Extra top / bottom room so the corner florals clear the header and the card
+        className="relative z-10 overflow-hidden pt-24 pb-28 sm:pt-28 sm:pb-36 md:pt-32 md:pb-44 lg:pt-36 lg:pb-52"
       >
-        {/* Corner decorations (from site.ts) */}
-        <div className="pointer-events-none absolute left-0 top-0 z-10">
-          <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute right-0 top-0 z-10">
-          <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-          <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-          <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
-        </div>
+        <CornerFlorals decos={cornerDecos} compact />
 
         {/* Header */}
         <motion.div
@@ -250,16 +233,6 @@ export function FAQ() {
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
         >
-          {/* Soft white glow so the heading reads cleanly over the circles */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120%] w-[min(40rem,110%)] -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
-            style={{ background: "radial-gradient(ellipse at center, rgb(255 255 255 / 70%) 0%, rgb(255 255 255 / 30%) 50%, transparent 72%)" }}
-          />
-          <DecoImg
-            src={decos.headerOrnament}
-            className="mx-auto mb-3 block h-auto w-28 select-none sm:mb-4 sm:w-36 md:w-44"
-          />
           <DiamondDivider />
           <p
             className={`${cinzel.className} mx-auto mt-4 max-w-[20rem] px-2 text-[0.6875rem] font-semibold uppercase leading-snug tracking-[0.16em] min-[400px]:max-w-none min-[400px]:text-[0.75rem] sm:mt-5 sm:text-[0.875rem] sm:tracking-[0.22em]`}
@@ -383,11 +356,6 @@ export function FAQ() {
               })}
             </motion.ul>
           </motion.div>
-
-          <DecoImg
-            src={decos.footerVine}
-            className="mx-auto mt-10 block h-auto w-56 select-none opacity-90 sm:mt-12 sm:w-72 md:w-96"
-          />
         </div>
       </section>
     </div>

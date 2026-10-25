@@ -1,7 +1,7 @@
 "use client"
 
 import { Section } from "@/components/section"
-import { useState, useEffect, type ReactNode } from "react"
+import { Fragment, useState, useEffect, type ReactNode } from "react"
 import { useQrColors } from "@/hooks/use-css-color"
 import { QRCodeSVG } from "qrcode.react"
 import { useSiteConfig } from "@/hooks/use-site-config"
@@ -12,7 +12,7 @@ import { Cinzel } from "next/font/google"
 import { Shirt, Copy, Check, Navigation, Heart, MapPin } from "lucide-react"
 import { motion, useReducedMotion, type Variants } from "motion/react"
 import { PlainBubbles } from "@/components/loader/PlainBubbles"
-import { TintedDeco } from "@/components/tinted-deco"
+import { CornerFlorals } from "@/components/corner-florals"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -39,6 +39,8 @@ const C = {
   label: "var(--color-welcome-heading)",
   script: "var(--color-welcome-script)",
   accent: "var(--color-motif-accent)",
+  // Deeper blush for small labels on the white attire cards (plain #F69F9D is too faint there)
+  rose: "color-mix(in srgb, var(--color-motif-accent) 78%, #B03A48)",
   blue: "var(--color-welcome-heading)",
   green: "var(--color-welcome-green)",
   paper: "var(--color-welcome-bg-soft)",
@@ -48,11 +50,13 @@ const C = {
 // Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
-// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+// Text sitting directly on the navy part of the sky: light ink with a navy edge
 const onBg = {
-  color: "var(--color-on-pattern)",
-  textShadow: "0 1px 0 var(--color-on-pattern-glow), 0 2px 12px var(--color-on-pattern-glow)",
+  color: "var(--color-motif-soft)",
+  textShadow: "0 1px 2px rgb(1 46 75 / 85%), 0 0 18px rgb(1 46 75 / 60%)",
 } as const
+// Eyebrow + script lines on the navy pick up the blush accent
+const onBgAccent = { ...onBg, color: "var(--color-motif-accent)" } as const
 
 const hairline = "color-mix(in srgb, var(--color-motif-medium) 55%, transparent)"
 
@@ -75,13 +79,6 @@ const primaryButtonBg =
   "linear-gradient(180deg, var(--color-welcome-heading) 0%, color-mix(in srgb, var(--color-welcome-heading) 72%, var(--color-welcome-navy)) 100%)"
 
 
-
-const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
-
-function DecoImg({ src, className }: { src: string; className: string }) {
-  return <TintedDeco src={src} className={className} />
-}
 
 function SectionIconDivider({ icon }: { icon: ReactNode }) {
   return (
@@ -124,7 +121,7 @@ function DetailsTitle({ title, subtitle }: { title: string; subtitle: string }) 
       <span
         aria-hidden
         className={`${aboveTheBeyond.className} mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9] mt-2 sm:mt-2.5 md:mt-3`}
-        style={{ fontSize: "var(--script-size)", ...onBg }}
+        style={{ fontSize: "var(--script-size)", ...onBgAccent }}
       >
         {subtitle}
       </span>
@@ -168,50 +165,47 @@ function DressCodePaletteHeader({
   guideNote: string
 }) {
   return (
-    <div className="mx-auto max-w-3xl text-center">
+    <div className="px-4 pt-5 pb-1 text-center sm:px-6 sm:pt-6">
       <h5
-        className={`${cinzel.className} text-sm font-semibold uppercase tracking-[0.14em] sm:text-base md:text-lg lg:text-xl`}
+        className={`${cinzel.className} text-sm font-semibold uppercase tracking-[0.16em] sm:text-base md:text-lg`}
         style={{ color: C.heading }}
       >
         {title}
       </h5>
       {subtitle ? (
         <p
-          className={`${aboveTheBeyond.className} mt-1 text-lg leading-none sm:mt-1.5 sm:text-xl md:text-2xl`}
-          style={{ color: C.blue }}
+          className={`${aboveTheBeyond.className} mt-1 text-[1.65rem] leading-none sm:mt-1.5 sm:text-3xl md:text-[2.1rem]`}
+          style={{ color: C.accent }}
         >
           {subtitle}
         </p>
       ) : null}
 
-      <div className="mx-auto mt-3 flex max-w-xs items-center justify-center gap-2 sm:mt-4 sm:max-w-sm md:max-w-md">
+      <div className="mx-auto mt-3 flex max-w-xs items-center justify-center gap-2 sm:mt-4 sm:max-w-sm">
         <span className="h-px flex-1" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }} />
         <Heart className="h-2.5 w-2.5 shrink-0 sm:h-3 sm:w-3" style={{ color: C.accent, fill: C.accent }} aria-hidden />
         <span className="h-px flex-1" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }} />
       </div>
 
       <p
-        className={`${cinzel.className} mt-3 text-[10px] font-bold uppercase tracking-[0.12em] sm:mt-4 sm:text-xs md:text-sm`}
-        style={{ color: C.label }}
+        className={`${cinzel.className} mt-4 text-[0.68rem] font-semibold uppercase tracking-[0.18em] sm:text-xs md:text-sm`}
+        style={{ color: C.rose }}
       >
         {guideTitle}
       </p>
-      <p className="font-goudy-italic mt-1.5 text-[10px] italic leading-relaxed sm:mt-2 sm:text-xs md:text-sm" style={{ color: C.body }}>
+      <p className="font-goudy-italic mt-1.5 text-[0.72rem] leading-relaxed sm:text-xs md:text-sm" style={{ color: C.heading }}>
         {guideNote}
       </p>
     </div>
   )
 }
 
-// Every swatch is the same width, so each strip is only as wide as its colors
-// (scales down on very small phones so paired strips always fit side by side)
-const SWATCH = "w-[clamp(2.2rem,11vw,3.4rem)] sm:w-16 md:w-[4.5rem]"
-
+// Full-width strip of equal swatches, color names written vertically
 function DressCodePaletteSwatches({ palette }: { palette: readonly PaletteColor[] }) {
   const named = palette.filter((c) => c.name)
   return (
     <div
-      className="flex w-fit overflow-hidden rounded-xl border-2"
+      className="flex w-full overflow-hidden rounded-xl border-2"
       style={{
         borderColor: "#FFFFFF",
         boxShadow:
@@ -223,7 +217,7 @@ function DressCodePaletteSwatches({ palette }: { palette: readonly PaletteColor[
       {palette.map((color, index) => (
         <div
           key={`${color.hex}-${index}`}
-          className={`relative flex h-24 shrink-0 items-center justify-center sm:h-28 md:h-32 ${SWATCH} ${
+          className={`relative flex min-h-[96px] min-w-0 flex-1 items-center justify-center sm:min-h-[116px] md:min-h-[136px] ${
             index === palette.length - 1 ? "" : "border-r border-white/90"
           }`}
           style={{ backgroundColor: color.hex }}
@@ -243,74 +237,6 @@ function DressCodePaletteSwatches({ palette }: { palette: readonly PaletteColor[
           ) : null}
         </div>
       ))}
-    </div>
-  )
-}
-
-/**
- * The dress code palette for every attire group in one card: the original header
- * (title, script line, heart divider, color guide) followed by a labelled color
- * strip per group. Shown after all the attire images, above Gentle Reminders.
- */
-function AttirePaletteOverview({
-  title,
-  subtitle,
-  guideTitle,
-  note,
-  groups,
-}: {
-  title: string
-  subtitle: string
-  guideTitle: string
-  note: string
-  groups: readonly { id: string; title: string; palette: readonly PaletteColor[] }[]
-}) {
-  const withColors = groups.filter((g) => g.palette.length > 0)
-  if (withColors.length === 0) return null
-
-  // Short palettes (3 colors or fewer) that sit next to each other share a line,
-  // e.g. Family + Principal Sponsors; longer ones get a line of their own.
-  const lines: (typeof withColors)[] = []
-  for (let i = 0; i < withColors.length; i++) {
-    const current = withColors[i]
-    const next = withColors[i + 1]
-    if (next && current.palette.length <= 3 && next.palette.length <= 3) {
-      lines.push([current, next])
-      i++
-    } else lines.push([current])
-  }
-
-  return (
-    <div
-      className="relative mx-auto w-full max-w-3xl overflow-hidden rounded-[1.5rem] px-4 py-6 sm:rounded-[2rem] sm:px-8 sm:py-8"
-      style={{ background: cardStyle.background, boxShadow: cardStyle.boxShadow }}
-    >
-      <DressCodePaletteHeader title={title} subtitle={subtitle} guideTitle={guideTitle} guideNote={note} />
-      <div className="mt-6 space-y-5 sm:mt-7 sm:space-y-6">
-        {lines.map((line) => (
-          <div
-            key={line.map((g) => g.id).join("-")}
-            className={
-              line.length > 1
-                ? // Paired (e.g. Family + Principal Sponsors): two columns on one line, never wraps
-                  "mx-auto grid w-fit grid-cols-2 items-end gap-x-3 sm:gap-x-10"
-                : "flex justify-center"
-            }
-          >
-            {line.map((group) => (
-              <div key={group.id} className="flex flex-col items-center gap-2 justify-self-center">
-                <p
-                  className={`${cinzel.className} max-w-[6.5rem] text-center text-[0.6rem] font-semibold uppercase leading-snug tracking-[0.2em] sm:max-w-none sm:text-[0.7rem]`}
-                  style={{ color: C.heading }}
-                >
-                  {group.title}
-                </p>
-                <DressCodePaletteSwatches palette={group.palette} />
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
@@ -459,19 +385,15 @@ function AttirePaletteGroup({
   roles?: readonly { role: string; attire: string; colors?: readonly AttireColor[] }[]
 }) {
   return (
-    <div className="mx-auto w-full max-w-md space-y-1.5 sm:space-y-2">
-      <div className="flex items-center justify-center gap-2">
-        <span className="h-px w-6 sm:w-10" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-yellow))" }} />
-        <p
-          className={`${cinzel.className} text-center text-[0.62rem] font-semibold uppercase tracking-[0.22em] sm:text-[0.7rem]`}
-          style={{ color: C.label }}
-        >
-          {label}
-        </p>
-        <span className="h-px w-6 sm:w-10" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-yellow))" }} />
-      </div>
+    <div className="mx-auto w-full max-w-md space-y-2 sm:space-y-2.5">
+      <p
+        className={`${cinzel.className} text-center text-[0.68rem] font-semibold uppercase tracking-[0.22em] sm:text-xs`}
+        style={{ color: C.rose }}
+      >
+        {label}
+      </p>
       {description ? (
-        <p className="font-goudy-italic text-center text-[0.78rem] leading-snug sm:text-sm" style={{ color: C.body }}>
+        <p className="font-goudy-italic px-1 text-center text-[0.84rem] leading-relaxed sm:text-[0.95rem]" style={{ color: C.heading }}>
           {description}
         </p>
       ) : null}
@@ -503,13 +425,13 @@ function AttireCard({
   image,
   alt,
   children,
-  dressCode,
+  belowImage,
 }: {
   title: string
   image?: string
   alt: string
   children: ReactNode
-  dressCode?: string
+  belowImage?: ReactNode
 }) {
   return (
     <div className="relative group h-full">
@@ -523,25 +445,13 @@ function AttireCard({
         className="relative flex h-full flex-col overflow-hidden rounded-[1.5rem] sm:rounded-[2rem]"
         style={{ background: cardStyle.background, boxShadow: cardStyle.boxShadow }}
       >
-        <div className="flex flex-col items-center gap-1.5 px-4 pt-4 pb-2 sm:pt-6">
+        <div className="px-4 pt-5 pb-3 sm:pt-7 sm:pb-4">
           <h4
-            className={`${cinzel.className} text-sm sm:text-lg md:text-xl text-center uppercase tracking-[0.2em] font-semibold leading-tight`}
+            className={`${cinzel.className} ${ct.attireCardTitle} text-center uppercase tracking-[0.22em] font-semibold leading-tight`}
             style={{ color: C.heading }}
           >
             {title}
           </h4>
-          {dressCode ? (
-            <span
-              className={`${cinzel.className} rounded-full px-2.5 py-0.5 text-[0.55rem] font-semibold uppercase tracking-[0.18em] sm:text-[0.62rem]`}
-              style={{
-                color: C.blue,
-                background: "color-mix(in srgb, var(--color-motif-medium) 16%, white)",
-                border: `1px solid ${hairline}`,
-              }}
-            >
-              {dressCode}
-            </span>
-          ) : null}
         </div>
 
         {image ? (
@@ -565,7 +475,9 @@ function AttireCard({
           </div>
         ) : null}
 
-        <div className="flex flex-1 flex-col px-3 pt-3 pb-4 sm:px-6 sm:pt-4 sm:pb-6">
+        {belowImage}
+
+        <div className="flex flex-1 flex-col px-4 pt-4 pb-6 sm:px-6 sm:pt-5 sm:pb-8">
           {children}
         </div>
       </div>
@@ -845,7 +757,7 @@ function EventVenueCard({
 export function Details() {
   const siteConfig = useSiteConfig()
   const content = siteConfig.eventDetails
-  const { decos, venues, labels, attire, reminders } = content
+  const { cornerDecos, venues, labels, attire, reminders } = content
   const { ceremony, reception } = siteConfig
 
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set())
@@ -863,8 +775,10 @@ export function Details() {
   const isPlain = siteConfig.loadingScreen?.display === "plain"
   const reminderImages = isPlain ? [] : reminders.images
   const paletteHexes = toPaletteColors(attire.palette).map((c) => c.hex)
-  // Guard against null entries (e.g. a stray comma in ATTIRE.show)
-  const attireGroups = attire.groups.filter(Boolean)
+  // Guard against null entries (e.g. a stray comma in ATTIRE.show).
+  // Principal & Secondary Sponsors and Entourage cards are never shown here.
+  const HIDDEN_ATTIRE_GROUPS = ["sponsors", "entourage"]
+  const attireGroups = attire.groups.filter((g) => g && !HIDDEN_ATTIRE_GROUPS.includes(g.id))
 
   useEffect(() => {
     if (ceremonyImages.length <= 1) return
@@ -924,31 +838,16 @@ export function Details() {
       <PlainBubbles />
       <Section
         id="details"
-        className="relative z-10 pt-14 pb-12 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20 overflow-hidden"
+        // Extra top / bottom room so the corner florals clear the header and the last card
+        className="relative z-10 pt-24 pb-28 sm:pt-28 sm:pb-36 md:pt-32 md:pb-44 lg:pt-36 lg:pb-52 overflow-hidden"
       >
-        {/* Corner decorations */}
-        <div className="pointer-events-none absolute left-0 top-0 z-10">
-          <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute right-0 top-0 z-10">
-          <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-          <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-          <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
-        </div>
+        <CornerFlorals decos={cornerDecos} compact />
 
         {/* Header */}
         <div className="relative z-20 mb-6 px-6 text-center sm:mb-8 sm:px-10 md:mb-10 md:px-12">
-          <DecoImg
-            src={decos.headerOrnament}
-            className="mx-auto mb-3 block h-auto w-28 select-none sm:mb-4 sm:w-36 md:w-44"
-          />
           <p
             className={`${cinzel.className} mb-2 text-[0.6rem] font-semibold uppercase tracking-[0.34em] min-[400px]:tracking-[0.38em] sm:text-[0.65rem] sm:tracking-[0.44em]`}
-            style={onBg}
+            style={onBgAccent}
           >
             {content.eyebrow}
           </p>
@@ -1065,6 +964,8 @@ export function Details() {
 
           <div className="mx-auto mb-6 w-full max-w-3xl space-y-5 sm:mb-8 sm:space-y-6 md:mb-10">
             {attireGroups.map((group) => {
+              const palette = toPaletteColors(group.palette)
+              const hasPalette = palette.length > 0
               const halves = [group.ladies, group.gentlemen].filter(
                 (half) => half.details.trim() || half.roles.length > 0,
               )
@@ -1074,38 +975,37 @@ export function Details() {
                   title={group.title}
                   image={group.image}
                   alt={`${group.title} attire guide`}
-                  dressCode={group.dressCode}
-                >
-                  <div className="space-y-4 sm:space-y-5">
-                    {halves.map((half) => (
-                      <AttirePaletteGroup
-                        key={half.label}
-                        label={half.label}
-                        description={half.details.trim() ? highlightPhrase(half.details, half.highlight) : undefined}
-                        colors={half.colors}
-                        roles={half.roles}
+                  belowImage={
+                    hasPalette ? (
+                      <DressCodePaletteHeader
+                        title={attire.paletteTitle}
+                        // The card's dress code ("Semi-Formal Attire") is the script line
+                        subtitle={group.dressCode || attire.paletteSubtitle}
+                        guideTitle={attire.colorGuideTitle}
+                        guideNote={attire.colorGuideNote}
                       />
+                    ) : null
+                  }
+                >
+                  <div className="space-y-6 sm:space-y-7">
+                    {halves.map((half, i) => (
+                      <Fragment key={half.label}>
+                        {/* Palette sits between the two halves (or after the only one) */}
+                        {hasPalette && i === 1 ? <DressCodePaletteSwatches palette={palette} /> : null}
+                        <AttirePaletteGroup
+                          label={half.label}
+                          description={half.details.trim() ? highlightPhrase(half.details, half.highlight) : undefined}
+                          colors={half.colors}
+                          roles={half.roles}
+                        />
+                      </Fragment>
                     ))}
+                    {hasPalette && halves.length < 2 ? <DressCodePaletteSwatches palette={palette} /> : null}
                   </div>
                 </AttireCard>
               )
             })}
           </div>
-
-          {/* One dress code palette for all groups — after the attire images, above the reminders */}
-          {attireGroups.length > 0 && (
-            <AttirePaletteOverview
-              title={attire.paletteTitle}
-              subtitle={attire.paletteSubtitle}
-              guideTitle={attire.colorGuideTitle}
-              note={attire.colorGuideNote}
-              groups={attireGroups.map((g) => ({
-                id: g.id,
-                title: g.title,
-                palette: toPaletteColors(g.palette),
-              }))}
-            />
-          )}
 
           {/* Gentle Reminders */}
           <motion.div
@@ -1134,10 +1034,7 @@ export function Details() {
                       rotationOffset={rotationOffset}
                     />
                   ) : (
-                    <DecoImg
-                      src={decos.headerOrnament}
-                      className="mx-auto mb-3 block h-auto w-20 select-none sm:w-24"
-                    />
+                    <Heart className="mb-3 h-4 w-4 sm:h-5 sm:w-5" style={{ color: C.accent, fill: C.accent }} aria-hidden />
                   )}
                   <h3
                     className={`${theSeasons.className} ${ct.sectionTitle} font-semibold uppercase tracking-[0.18em]`}
@@ -1179,10 +1076,6 @@ export function Details() {
             </div>
           </motion.div>
 
-          <DecoImg
-            src={decos.footerVine}
-            className="relative z-20 mx-auto mt-10 block h-auto w-56 select-none opacity-90 sm:mt-12 sm:w-72 md:w-96"
-          />
         </div>
       </Section>
     </div>

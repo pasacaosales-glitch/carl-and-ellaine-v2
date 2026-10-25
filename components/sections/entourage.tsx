@@ -1,8 +1,8 @@
 "use client"
 
 import React from "react"
-import { createContext, useContext, useState, useEffect, useMemo, useRef } from "react"
-import { MotionConfig, motion, useScroll, useTransform, type Variants } from "motion/react"
+import { createContext, useContext, useState, useEffect, useMemo } from "react"
+import { MotionConfig, motion, type Variants } from "motion/react"
 import localFont from "next/font/local"
 import { Section } from "@/components/section"
 import { sectionType } from "@/lib/section-typography"
@@ -11,7 +11,7 @@ import { useSiteConfig } from "@/hooks/use-site-config"
 import { fetchUntilReady, isAbortError } from "@/lib/fetch-until-ready"
 import { fetchInvitationList, readCachedInvitationList } from "@/lib/invitation-data"
 import { PlainBubbles } from "@/components/loader/PlainBubbles"
-import { TintedDeco } from "@/components/tinted-deco"
+import { CornerFlorals } from "@/components/corner-florals"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -41,15 +41,16 @@ const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)
 // Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
-// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+// Text sitting directly on the navy part of the sky: light ink with a navy edge
 const onBg = {
-  color: "var(--color-ink-deep)",
-  textShadow:
-    "0 0 1px var(--color-on-pattern-glow), 0 1px 0 var(--color-on-pattern-glow), 0 0 14px var(--color-on-pattern-glow), 0 0 26px var(--color-on-pattern-glow)",
+  color: "var(--color-motif-soft)",
+  textShadow: "0 1px 2px rgb(1 46 75 / 85%), 0 0 18px rgb(1 46 75 / 60%)",
 } as const
+// Eyebrow + script lines on the navy pick up the blush accent
+const onBgAccent = { ...onBg, color: "var(--color-motif-accent)" } as const
 
 const onBgLineStyle = {
-  background: "var(--color-ink-accent)",
+  background: "linear-gradient(to right, transparent, var(--color-motif-accent), transparent)",
 } as const
 
 const dividerLineStyle = {
@@ -62,9 +63,6 @@ const cardStyle = {
     "0 26px 56px -30px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 } as const
 
-const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[92px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
-
 const palette = {
   body: BODY,
   heading: NAVY,
@@ -72,16 +70,12 @@ const palette = {
   accent: ACCENT,
 } as const
 
-function DecoImg({ src, className }: { src: string; className: string }) {
-  return <TintedDeco src={src} className={className} />
-}
-
 function OutsideDivider() {
   return (
     <div className="flex items-center justify-center gap-2">
-      <span className="h-px w-10 sm:w-16" style={{ background: "var(--color-ink-accent)" }} />
-      <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-ink-accent)" }} aria-hidden />
-      <span className="h-px w-10 sm:w-16" style={{ background: "var(--color-ink-accent)" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-accent))" }} />
+      <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-motif-accent)" }} aria-hidden />
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-accent))" }} />
     </div>
   )
 }
@@ -220,7 +214,7 @@ function EntourageTitle({ title, subtitle }: { title: string; subtitle: string }
         className={`${aboveTheBeyond.className} relative z-10 mx-auto mt-1.5 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2 sm:leading-[0.9]`}
         style={{
           fontSize: "var(--script-size)",
-          ...onBg,
+          ...onBgAccent,
         }}
       >
         {subtitle}
@@ -257,11 +251,6 @@ const headerStagger: Variants = {
 const headerRise: Variants = {
   hidden: { opacity: 0, y: 16, filter: "blur(6px)" },
   show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.9, ease: revealEase } },
-}
-
-const ornamentBloom: Variants = {
-  hidden: { opacity: 0, scale: 0.6, rotate: -12 },
-  show: { opacity: 1, scale: 1, rotate: 0, transition: { type: "spring", stiffness: 120, damping: 14 } },
 }
 
 const lineDraw: Variants = {
@@ -706,7 +695,7 @@ export function Entourage({ sponsorsList }: { sponsorsList?: SponsorsList } = {}
   const sponsorsPath = sponsorsUrl(sponsorsList)
   const siteConfig = useSiteConfig()
   const content = siteConfig.entourage
-  const { decos } = content
+  const { cornerDecos } = content
   const groomName = siteConfig.couple.groom
   const brideName = siteConfig.couple.bride
   const [entourage, setEntourage] = useState<EntourageMember[]>([])
@@ -714,10 +703,6 @@ export function Entourage({ sponsorsList }: { sponsorsList?: SponsorsList } = {}
   const [isLoading, setIsLoading] = useState(true)
   const [isRetrying, setIsRetrying] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start end", "end start"] })
-  const topDecoY = useTransform(scrollYProgress, [0, 1], [-30, 70])
-  const bottomDecoY = useTransform(scrollYProgress, [0, 1], [60, -30])
 
   const loadParty = async (signal?: AbortSignal, { reload = false } = {}) => {
     const cached = readCachedParty(sponsorsPath)
@@ -829,7 +814,6 @@ export function Entourage({ sponsorsList }: { sponsorsList?: SponsorsList } = {}
     <MotionConfig reducedMotion="user">
     <HeadingLabelsContext.Provider value={content.headingLabels}>
     <div
-      ref={sectionRef}
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
@@ -837,21 +821,10 @@ export function Entourage({ sponsorsList }: { sponsorsList?: SponsorsList } = {}
       <PlainBubbles />
       <Section
         id="entourage"
-        className="relative z-10 overflow-hidden pt-5 pb-5 sm:pt-10 sm:pb-10 md:pt-12 md:pb-12 lg:pt-14 lg:pb-14"
+        // Extra top / bottom room so the corner florals clear the header and the arch card
+        className="relative z-10 overflow-hidden pt-24 pb-28 sm:pt-28 sm:pb-36 md:pt-32 md:pb-44 lg:pt-36 lg:pb-52"
       >
-        {/* Corner decorations (from site.ts) */}
-        <motion.div className="pointer-events-none absolute left-0 top-0 z-10" style={{ y: topDecoY }}>
-          <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
-        </motion.div>
-        <motion.div className="pointer-events-none absolute right-0 top-0 z-10" style={{ y: topDecoY }}>
-          <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
-        </motion.div>
-        <motion.div className="pointer-events-none absolute bottom-0 left-0 z-10" style={{ y: bottomDecoY }}>
-          <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
-        </motion.div>
-        <motion.div className="pointer-events-none absolute bottom-0 right-0 z-10" style={{ y: bottomDecoY }}>
-          <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
-        </motion.div>
+        <CornerFlorals decos={cornerDecos} compact />
 
       <motion.div
         className="relative z-20 mx-auto mb-5 max-w-5xl px-3 text-center @container/entourage sm:mb-10 sm:px-4 md:mb-12"
@@ -860,19 +833,13 @@ export function Entourage({ sponsorsList }: { sponsorsList?: SponsorsList } = {}
         whileInView="show"
         viewport={{ once: true, amount: 0.4 }}
       >
-        <motion.div variants={ornamentBloom}>
-          <DecoImg
-            src={decos.headerOrnament}
-            className="mx-auto mb-2 block h-auto w-20 select-none sm:mb-4 sm:w-36 md:w-44"
-          />
-        </motion.div>
         <motion.div className="mx-auto mb-2.5 sm:mb-5 md:mb-6" variants={lineDraw}>
           <OutsideDivider />
         </motion.div>
         <motion.p
           variants={headerRise}
           className={`${cinzel.className} mx-auto max-w-[20rem] px-2 text-[0.75rem] font-semibold leading-snug tracking-[0.12em] min-[400px]:max-w-none min-[400px]:text-[0.8125rem] min-[400px]:tracking-[0.16em] sm:text-[0.9375rem] sm:tracking-[0.2em] md:text-base md:tracking-[0.22em]`}
-          style={onBg}
+          style={onBgAccent}
         >
           {content.eyebrow}
         </motion.p>
@@ -1786,22 +1753,6 @@ export function Entourage({ sponsorsList }: { sponsorsList?: SponsorsList } = {}
             )}
           </div>
         </div>
-          </motion.div>
-        </motion.div>
-        {/* Footer vine grows out from its centre (observed on the unclipped wrapper) */}
-        <motion.div
-          className="relative z-20 mx-auto mt-6 w-40 sm:mt-12 sm:w-72 md:w-96"
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.8 }}
-        >
-          <motion.div
-            variants={{
-              hidden: { clipPath: "inset(0% 50% 0% 50%)", opacity: 0 },
-              show: { clipPath: "inset(0% 0% 0% 0%)", opacity: 1, transition: { duration: 1.6, ease: revealEase } },
-            }}
-          >
-            <DecoImg src={decos.footerVine} className="block h-auto w-full select-none opacity-90" />
           </motion.div>
         </motion.div>
       </div>

@@ -3384,13 +3384,13 @@
    Sunshine yellow is used once — the glowing dot on the progress bar.
    ========================================================================== */
 .loading-screen--plain {
-  --ls-sky: var(--color-motif-medium);          /* #8CBBE5 */
-  --ls-blue: var(--color-welcome-heading);      /* #4E86B7 */
-  --ls-navy: var(--color-welcome-navy);         /* #1F4468 */
-  --ls-ink: var(--color-welcome-text);          /* #2F6496 */
-  --ls-leaf: var(--color-motif-yellow);         /* #959D6C sage */
+  --ls-sky: var(--color-motif-medium);          /* #F69F9D */
+  --ls-blue: var(--color-welcome-heading);      /* #012E4B */
+  --ls-navy: var(--color-welcome-navy);         /* #012E4B */
+  --ls-ink: var(--color-welcome-text);          /* #012E4B */
+  --ls-leaf: var(--color-motif-yellow);         /* #F69F9D sage */
   --ls-leaf-ink: color-mix(in srgb, var(--color-motif-yellow) 78%, #3C4424);
-  --ls-sun: var(--color-motif-accent);          /* #FDCC4B */
+  --ls-sun: var(--color-motif-accent);          /* #F69F9D */
 
   --ls-text-dark: var(--ls-ink);
   --ls-text-accent-dark: var(--ls-blue);
@@ -3498,12 +3498,12 @@
    holds up over bright frames. Sage + sunshine appear only as accents.
    ========================================================================== */
 .home-hero--plain {
-  --hh-navy: var(--color-welcome-navy);       /* #1F4468 */
-  --hh-blue: var(--color-welcome-heading);    /* #4E86B7 */
-  --hh-ink: var(--color-welcome-text);        /* #2F6496 */
-  --hh-sky: var(--color-motif-medium);        /* #8CBBE5 */
-  --hh-leaf: var(--color-motif-yellow);       /* #959D6C */
-  --hh-butter: var(--color-motif-silver);     /* #FAE292 */
+  --hh-navy: var(--color-welcome-navy);       /* #012E4B */
+  --hh-blue: var(--color-welcome-heading);    /* #012E4B */
+  --hh-ink: var(--color-welcome-text);        /* #012E4B */
+  --hh-sky: var(--color-motif-medium);        /* #F69F9D */
+  --hh-leaf: var(--color-motif-yellow);       /* #F69F9D */
+  --hh-butter: var(--color-motif-silver);     /* #F5C5C3 */
   /* Tight white edge: keeps thin strokes crisp instead of washing them out */
   --hh-edge:
     0 0 1px rgb(255 255 255 / 100%),
@@ -3812,7 +3812,8 @@
   display: block;
   width: clamp(2rem, 8vw, 3.5rem);
   height: 1px;
-  margin: clamp(0.55rem, 2vw, 0.9rem) 0;
+  /* Block margins only, so ml-auto / mx-auto can align it with the text */
+  margin-block: clamp(0.55rem, 2vw, 0.9rem);
   background: var(--color-motif-yellow);
 }
 
@@ -3837,5 +3838,156 @@
 @media (max-width: 767px) {
   .loading-screen {
     touch-action: none;
+  }
+}
+
+/* ---- Home hero over the navy photo marquee (loadingScreen.navyInvite.backgroundMarquee) ----
+   Carries on from the navy loader and envelope: light ink with a navy edge instead of
+   navy ink with a white edge. Scoped to the text block so the countdown band keeps its navy. */
+.home-hero--marquee .home-hero-mist ~ * {
+  --hh-navy: var(--color-motif-cream, #F5C5C3);
+  --hh-blue: var(--color-motif-accent, #F69F9D);
+  --hh-ink: var(--color-motif-cream, #F5C5C3);
+  --hh-edge:
+    0 1px 2px color-mix(in srgb, var(--color-ink-deep, #012E4B) 85%, transparent),
+    0 2px 14px color-mix(in srgb, var(--color-ink-deep, #012E4B) 70%, transparent);
+}
+
+.home-hero--marquee .home-hero-mist {
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--color-ink-deep, #012E4B) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-ink-deep, #012E4B) 35%, transparent) 45%,
+    transparent 72%
+  );
+}
+
+/* ==========================================================================
+   Thank-you section sky (components/sections/love-story.tsx → PlainBubbles)
+   Deep navy at the top, a drifting blush cloud edge breaking through teal,
+   then blush to the bottom — like a watercolor dusk. --ls-band is where the
+   navy ends; the header is the same height so its light title sits on navy.
+   ========================================================================== */
+.love-story-root--sky {
+  --ls-band: clamp(30rem, 74vh, 46rem);
+  --ls-navy: var(--color-ink-deep, #012E4B);
+  --ls-teal: color-mix(in srgb, #0E5876 80%, var(--ls-navy));
+  --ls-blush: var(--color-motif-accent, #F69F9D);
+  --ls-pale: var(--color-motif-cream, #F5C5C3);
+  --ls-paper: var(--color-motif-soft, #FEF3F2);
+  isolation: isolate;
+  background: var(--ls-pale);
+}
+
+/* The sky itself is the shared PlainBubbles backdrop. Its navy reaches down to
+   --ls-sky-band, which LoveStory measures so the cloud edge falls inside the
+   extra top space of the first blush chapter (falls back to the header height).
+   The blush arrives over a fixed 14rem, and the cloud layers are sized in rem,
+   so they don't stretch with this tall section and clear the text below. */
+.ls-plain-sky {
+  --sky-band: var(--ls-sky-band, var(--ls-band));
+  --sky-rest: 14rem;
+}
+.ls-plain-sky .plain-sky__cloud {
+  height: 9rem;
+  min-height: 0;
+}
+.ls-plain-sky .plain-sky__cloud--back { top: calc(var(--sky-band) - 5rem); }
+.ls-plain-sky .plain-sky__cloud--mid { top: calc(var(--sky-band) - 3.5rem); }
+.ls-plain-sky .plain-sky__cloud--front { top: calc(var(--sky-band) - 2rem); }
+
+/* First chapter after the navy: room above it for the navy → blush cloud edge,
+   so no text ever sits on the in-between mauve */
+.love-story-root--sky .story-open--on-navy + .story-open:not(.story-open--on-navy) {
+  padding-top: 10rem;
+}
+
+/* Corner florals — top pair on the navy, bottom pair on the blush; they sway gently */
+.ls-corners {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+}
+.ls-corner {
+  position: absolute;
+  width: min(44vw, 340px);
+  animation: ls-corner-sway 9s ease-in-out infinite alternate;
+}
+.ls-corner__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+.ls-corner--tl { top: 0; left: 0; transform-origin: 0 0; }
+.ls-corner--tr { top: 0; right: 0; transform-origin: 100% 0; animation-delay: -3s; }
+.ls-corner--bl { bottom: 0; left: 0; transform-origin: 0 100%; animation-delay: -5s; }
+.ls-corner--br { bottom: 0; right: 0; transform-origin: 100% 100%; animation-delay: -7s; }
+
+/* Smaller corners for shorter sections (gallery) */
+.ls-corners--compact .ls-corner {
+  width: min(34vw, 260px);
+}
+
+@keyframes ls-corner-sway {
+  from { transform: rotate(-1.4deg) scale(1); }
+  to { transform: rotate(1.4deg) scale(1.025); }
+}
+
+/* Header clears the top florals, then the first chapter follows closely
+   (the navy carries on behind the chapters); footer leaves room for the bottom florals */
+.ls-sky-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: clamp(7rem, 26vw, 12rem);
+  padding-bottom: clamp(0.5rem, 3vw, 2rem);
+}
+.ls-sky-intro {
+  color: color-mix(in srgb, var(--ls-paper) 92%, transparent);
+  text-shadow: 0 1px 2px rgb(1 46 75 / 80%), 0 0 14px rgb(1 46 75 / 55%);
+}
+.ls-sky-footer {
+  padding-bottom: clamp(10rem, 44vw, 17rem);
+}
+
+/* Chapter text sits on blush: deepen the accents that were blush-on-blush */
+.love-story-root--sky .story-open-rule {
+  background: color-mix(in srgb, var(--color-welcome-navy) 60%, transparent);
+}
+.love-story-root--sky .story-open-date {
+  color: var(--color-welcome-navy);
+}
+
+/* Chapters on the blush: solid navy ink everywhere, no white halo (it blurred into the pink) */
+.love-story-root--sky .story-open-text {
+  color: var(--color-welcome-navy);
+  text-shadow: none;
+}
+.love-story-root--sky .story-open-title {
+  text-shadow: none;
+}
+
+/* Chapters still on the navy part of the sky: white text, pink accents */
+.love-story-root--sky .story-open--on-navy .story-open-date {
+  color: var(--ls-blush);
+}
+.love-story-root--sky .story-open--on-navy .story-open-title {
+  color: var(--ls-paper);
+  text-shadow: 0 1px 2px rgb(1 46 75 / 70%);
+}
+.love-story-root--sky .story-open--on-navy .story-open-rule {
+  background: var(--ls-blush);
+}
+.love-story-root--sky .story-open--on-navy .story-open-text {
+  color: color-mix(in srgb, var(--ls-paper) 92%, transparent);
+  text-shadow: 0 1px 2px rgb(1 46 75 / 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-corner {
+    animation: none;
   }
 }

@@ -22,6 +22,7 @@ import { parseWeddingDate } from '@/lib/wedding-date';
 import { InviteParticles } from '@/components/loader/InviteParticles';
 import { InvitePhotoBackdrop } from '@/components/loader/invite-photo-backdrop';
 import { BackgroundVideo } from '@/components/background-video';
+import { NavyMarquee } from '@/components/loader/navy-marquee';
 import { TintedDeco } from '@/components/tinted-deco';
 import './envelope-invite.css';
 
@@ -105,6 +106,11 @@ export const Hero: React.FC<HeroProps> = ({
   const plainTheme = content.plainTheme ?? defaultSiteConfig.loadingScreen.plainTheme;
   const cornerDecos = content.cornerDecos ?? defaultSiteConfig.loadingScreen.cornerDecos;
   const plainInvite = content.plainInvite ?? defaultSiteConfig.loadingScreen.plainInvite;
+  // Navy loader: keep its full-color corner florals in the exact same spot, so they hold still through the hand-off
+  const navyDecos =
+    isPlain && (content.plainLayout ?? defaultSiteConfig.loadingScreen.plainLayout) === 'navy'
+      ? (content.navyInvite ?? defaultSiteConfig.loadingScreen.navyInvite).decos
+      : null;
   const reduceMotion = useReducedMotion();
   const openedRef = useRef(false);
   const enterBtnRef = useRef<HTMLButtonElement>(null);
@@ -147,6 +153,11 @@ export const Hero: React.FC<HeroProps> = ({
     [content.backgroundPhotos],
   );
   const showPhotoBackdrop = !isPlain && backgroundPhotos.length > 0;
+  // Navy loader's photo marquee carries on behind the envelope (instead of the video)
+  const showNavyMarquee =
+    !!navyDecos &&
+    (content.navyInvite ?? defaultSiteConfig.loadingScreen.navyInvite).backgroundMarquee !== false &&
+    backgroundPhotos.length > 0;
 
   // envelopePhotos show in any display mode; otherwise photo mode falls back to the date-card photos
   const envelopePhotoSources = useMemo(
@@ -496,7 +507,7 @@ export const Hero: React.FC<HeroProps> = ({
 
   return (
     <motion.div
-      className={`env-invite-screen${isPlain ? ' env-invite-screen--plain' : ''}${isPlain && showEnvelopePhotos ? ' env-invite-screen--with-photos' : ''}${isPlain && enterFromLoading && visible && !reduceMotion ? ' is-arriving' : ''} ${visible ? '' : 'is-hidden'}`}
+      className={`env-invite-screen${isPlain ? ' env-invite-screen--plain' : ''}${showNavyMarquee ? ' env-invite-screen--marquee' : ''}${isPlain && showEnvelopePhotos ? ' env-invite-screen--with-photos' : ''}${isPlain && enterFromLoading && visible && !reduceMotion ? ' is-arriving' : ''} ${visible ? '' : 'is-hidden'}`}
       data-phase={isExiting ? 'exiting' : phase}
       aria-hidden={!visible}
       initial={false}
@@ -534,20 +545,39 @@ export const Hero: React.FC<HeroProps> = ({
 
       {isPlain && (
         <>
-          <BackgroundVideo veil={0.5} />
+          {showNavyMarquee ? (
+            <NavyMarquee photos={backgroundPhotos} reduceMotion={!!reduceMotion} />
+          ) : (
+            <BackgroundVideo veil={0.5} />
+          )}
           <div className="env-invite-plain-corners" aria-hidden="true">
-            {(
-              [
-                { src: cornerDecos.topLeft, className: 'left-0 top-0' },
-                { src: cornerDecos.topRight, className: 'right-0 top-0' },
-                { src: cornerDecos.bottomLeft, className: 'left-0 bottom-0' },
-                { src: cornerDecos.bottomRight, className: 'right-0 bottom-0' },
-              ] as const
-            ).map(({ src, className }) => (
-              <div key={src} className={`pointer-events-none absolute ${className}`}>
-                <TintedDeco src={src} className="env-invite-plain-corner-img" />
-              </div>
-            ))}
+            {navyDecos
+              ? (
+                  [
+                    ['tl', navyDecos.topLeft, 720, 584],
+                    ['tr', navyDecos.topRight, 714, 615],
+                    ['bl', navyDecos.bottomLeft, 733, 454],
+                    ['br', navyDecos.bottomRight, 719, 439],
+                  ] as const
+                ).map(([pos, src, w, h]) =>
+                  src ? (
+                    <div key={pos} className={`env-invite-navy-corner env-invite-navy-corner--${pos}`}>
+                      <Image src={src} alt="" width={w} height={h} priority className="env-invite-navy-corner-img" />
+                    </div>
+                  ) : null,
+                )
+              : (
+                  [
+                    { src: cornerDecos.topLeft, className: 'left-0 top-0' },
+                    { src: cornerDecos.topRight, className: 'right-0 top-0' },
+                    { src: cornerDecos.bottomLeft, className: 'left-0 bottom-0' },
+                    { src: cornerDecos.bottomRight, className: 'right-0 bottom-0' },
+                  ] as const
+                ).map(({ src, className }) => (
+                  <div key={className} className={`pointer-events-none absolute ${className}`}>
+                    <TintedDeco src={src} className="env-invite-plain-corner-img" />
+                  </div>
+                ))}
           </div>
         </>
       )}

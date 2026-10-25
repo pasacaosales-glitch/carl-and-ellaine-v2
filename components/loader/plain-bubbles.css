@@ -1,91 +1,244 @@
-/* Plain mode — flat circle pattern (loader, envelope, hero and page sections)
-   Crisp, overlapping translucent circles; each pops in as it scrolls into
-   view, then wanders and breathes. Colors live in app/globals.css. */
+/* Plain mode — dusk sky (loader, envelope, hero and page sections)
+   Plain CSS only: color-mix gradients + keyframes, no images. Navy on top, a
+   teal band, scalloped mauve → rose → blush cloud edges drifting through it,
+   then blush fading to pale pink. Soft color blooms breathe and a horizon
+   glow pulses, and a few pink motes rise through the navy only. Kept light for load speed: few layers, and every animation
+   is transform/opacity only (no repaints), paused off screen. --sky-band is where the navy/teal ends and
+   the cloud edge sits — the blue/pink ratio (default 60% blue, 40% pink);
+   override it per section (e.g. the love story). The pink stops are spread
+   over whatever is left below the band (--sky-rest). */
 
-.plain-bubbles {
-  /* colors come from app/globals.css → "BACKGROUND — CIRCLE PATTERN" */
-  --plain-bubble-base: var(--color-bg-pattern-base);
-  --plain-bubble-deep: var(--color-bg-circle-deep);
-  --plain-bubble-mid: var(--color-bg-circle-mid);
-  --plain-bubble-light: var(--color-bg-circle-light);
-  --plain-bubble-accent-1: var(--color-bg-circle-accent-1);
-  --plain-bubble-accent-2: var(--color-bg-circle-accent-2);
-  --plain-bubble-accent-3: var(--color-bg-circle-accent-3);
-  --plain-bubble-rose: var(--color-bg-circle-rose);
-  --plain-bubble-peach: var(--color-bg-circle-peach);
+.plain-sky {
+  --sky-band: 60%;
+  --sky-rest: calc(100% - var(--sky-band));
+  --sky-navy: var(--color-ink-deep, #012E4B);
+  --sky-teal: color-mix(in srgb, #0E5876 80%, var(--sky-navy));
+  --sky-mauve: color-mix(in srgb, #8C7088 85%, var(--sky-teal));
+  --sky-rose: color-mix(in srgb, var(--sky-blush) 70%, var(--sky-mauve));
+  --sky-blush: var(--color-motif-accent, #F69F9D);
+  --sky-pale: var(--color-motif-cream, #F5C5C3);
   position: absolute;
   inset: 0;
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
-  /* paints its own flat base, so it fully replaces whatever sits underneath */
-  background: var(--plain-bubble-base);
+  isolation: isolate;
+  /* layout/paint stay inside the sky */
+  contain: strict;
+  /* paints its own base, so it fully replaces whatever sits underneath;
+     the first layer deepens the color toward the edges */
+  --sky-vignette: radial-gradient(130% 75% at 50% 45%, transparent 55%, color-mix(in srgb, var(--sky-navy) 18%, transparent) 100%);
+  background:
+    var(--sky-vignette),
+    linear-gradient(180deg, var(--sky-stops));
+  --sky-stops:
+    color-mix(in srgb, var(--sky-navy) 88%, black) 0,
+    var(--sky-navy) calc(var(--sky-band) * 0.4),
+    color-mix(in srgb, var(--sky-navy) 60%, var(--sky-teal)) calc(var(--sky-band) * 0.65),
+    var(--sky-teal) calc(var(--sky-band) * 0.84),
+    color-mix(in oklch, var(--sky-teal) 50%, var(--sky-mauve)) var(--sky-band),
+    var(--sky-rose) calc(var(--sky-band) + var(--sky-rest) * 0.1),
+    var(--sky-blush) calc(var(--sky-band) + var(--sky-rest) * 0.25),
+    color-mix(in srgb, var(--sky-blush) 80%, var(--sky-pale)) calc(var(--sky-band) + var(--sky-rest) * 0.55),
+    var(--sky-pale) calc(var(--sky-band) + var(--sky-rest) * 0.85),
+    color-mix(in srgb, var(--sky-pale) 55%, white) 100%;
 }
 
-.plain-bubbles--fixed {
+/* Blending teal into pink in srgb passes through grey; in oklch it passes
+   through a dusky mauve, like the painting (older browsers keep the srgb one) */
+@supports (background: linear-gradient(in oklch, red, blue)) {
+  .plain-sky {
+    background:
+      var(--sky-vignette),
+      linear-gradient(in oklch 180deg, var(--sky-stops));
+  }
+}
+
+.plain-sky--fixed {
   position: fixed;
 }
 
-.plain-bubble {
+.plain-sky > span {
+  position: absolute;
+  display: block;
+}
+
+/* ---- Color blooms: soft pools that wander (translate) and swell (transform) on separate clocks ---- */
+.plain-sky__haze {
+  border-radius: 46% 54% 52% 48% / 55% 45% 55% 45%;
+  animation:
+    plain-sky-haze 28s ease-in-out infinite alternate,
+    plain-sky-wander 47s ease-in-out infinite;
+}
+/* Sized in rem/vw with caps and anchored to the band edge, so tall sections
+   don't stretch them into vertical smears */
+.plain-sky__haze--teal {
+  top: calc(var(--sky-band) - 24rem);
+  left: -40%;
+  width: 130%;
+  height: 20rem;
+  background: radial-gradient(closest-side, color-mix(in srgb, #2C7A96 50%, transparent), transparent);
+  animation-duration: 30s, 52s;
+}
+.plain-sky__haze--mauve {
+  top: calc(var(--sky-band) - 6rem);
+  left: -15%;
+  width: 80%;
+  height: 12rem;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--sky-mauve) 50%, transparent), transparent);
+  animation-duration: 24s, 43s;
+  animation-delay: -6s, -11s;
+}
+.plain-sky__haze--rose {
+  top: calc(var(--sky-band) + 2rem);
+  right: -35%;
+  width: 110%;
+  height: min(calc(var(--sky-rest) * 0.7), 24rem);
+  background: radial-gradient(closest-side, color-mix(in srgb, #E9777A 30%, transparent), transparent);
+  animation-duration: 34s, 58s;
+  animation-delay: -12s, -30s;
+}
+.plain-sky__haze--pale {
+  top: calc(var(--sky-band) + var(--sky-rest) * 0.45);
+  left: -30%;
+  width: 120%;
+  height: min(calc(var(--sky-rest) * 0.9), 30rem);
+  background: radial-gradient(closest-side, color-mix(in srgb, white 40%, transparent), transparent);
+  animation-duration: 38s, 66s;
+  animation-delay: -18s, -40s;
+}
+
+@keyframes plain-sky-haze {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.14, 1.06) rotate(4deg); }
+  100% { transform: scale(0.94, 1.1) rotate(-3deg); }
+}
+@keyframes plain-sky-wander {
+  0%, 100% { translate: 0 0; }
+  33% { translate: 8% -3%; }
+  66% { translate: -5% 2%; }
+}
+
+/* ---- Horizon glow: warm light behind the clouds, breathing ---- */
+.plain-sky__glow {
+  left: -10%;
+  right: -10%;
+  top: calc(var(--sky-band) - 9rem);
+  height: 18rem;
+  background: radial-gradient(60% 50% at 50% 55%, color-mix(in srgb, #FFD2C4 45%, transparent), transparent 70%);
+  animation: plain-sky-glow 14s ease-in-out infinite alternate;
+}
+@keyframes plain-sky-glow {
+  from { opacity: 0.4; transform: scale(0.92, 1); }
+  to { opacity: 1; transform: scale(1.08, 1.15); }
+}
+
+/* ---- Cloud edges: two rows of soft ellipses (different widths, so the rim looks
+        uneven) over a fill that fades downward. The layer is 480px wider than the
+        sky and slides left by 480px (a whole number of tiles for both rows), so the
+        loop is seamless and runs on the compositor; it also swells up and down. ---- */
+.plain-sky__cloud {
+  --c: var(--sky-blush);
+  left: 0;
+  width: calc(100% + 480px);
+  /* capped so the scallops never stretch tall in long sections */
+  height: clamp(6rem, 22%, 12rem);
+  background:
+    radial-gradient(closest-side, var(--c) 55%, color-mix(in srgb, var(--c) 0%, transparent)) 0 0 / var(--w1) 64% repeat-x,
+    radial-gradient(closest-side, var(--c) 50%, color-mix(in srgb, var(--c) 0%, transparent)) var(--o2, 0) 12% / var(--w2) 50% repeat-x,
+    linear-gradient(180deg, transparent 30%, var(--c) 34%, color-mix(in srgb, var(--c) 45%, transparent) 70%, transparent);
+  animation:
+    plain-sky-drift var(--drift, 60s) linear infinite,
+    plain-sky-swell 12s ease-in-out infinite alternate;
+}
+.plain-sky__cloud--back {
+  --c: var(--sky-mauve);
+  --w1: 480px;
+  --w2: 240px;
+  --o2: 90px;
+  --drift: 110s;
+  top: calc(var(--sky-band) - 4.5rem);
+  opacity: 0.8;
+  animation-direction: reverse, alternate;
+  animation-delay: 0s, -7s;
+}
+.plain-sky__cloud--mid {
+  --c: var(--sky-rose);
+  --w1: 240px;
+  --w2: 160px;
+  --o2: 50px;
+  --drift: 80s;
+  top: calc(var(--sky-band) - 3rem);
+  opacity: 0.75;
+  animation-delay: 0s, -3s;
+}
+.plain-sky__cloud--front {
+  --c: color-mix(in srgb, var(--sky-blush) 92%, white);
+  --w1: 160px;
+  --w2: 96px;
+  --drift: 60s;
+  top: calc(var(--sky-band) - 1.5rem);
+}
+@keyframes plain-sky-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-480px); }
+}
+@keyframes plain-sky-swell {
+  from { translate: 0 0.6rem; }
+  to { translate: 0 -0.9rem; }
+}
+
+/* ---- Pink motes: a handful of tiny specks rising slowly through the navy.
+        The layer covers only the navy part (top → --sky-band), so they show on
+        the dark sky and never drift into the pink. Positions/timing inline. ---- */
+.plain-sky__motes {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--sky-band);
+}
+.plain-sky__mote {
   position: absolute;
   left: var(--x);
   top: var(--y);
-  width: var(--size);
-  height: var(--size);
-  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  width: var(--s);
+  height: var(--s);
   border-radius: 50%;
-  scale: 0;
-  /* entrance (scale), wander (translate) and breathe (transform) run on separate
-     properties so they compose instead of fighting */
-  animation:
-    plain-bubble-in 1.2s cubic-bezier(0.34, 1.45, 0.64, 1) var(--pop-delay, 0ms) forwards,
-    plain-bubble-drift var(--dur) ease-in-out calc(var(--i) * -1.3s) infinite,
-    plain-bubble-breathe var(--breathe) ease-in-out calc(var(--i) * -0.7s) infinite alternate;
-  /* the pop-in waits until this circle scrolls into view (data-in, set by PlainBubbles) */
-  animation-play-state: paused, running, running;
-  will-change: translate, transform;
+  background: radial-gradient(circle, var(--sky-pale) 0, color-mix(in srgb, var(--sky-blush) 80%, transparent) 45%, transparent 72%);
+  opacity: 0;
+  animation: plain-sky-mote var(--dur) ease-in-out var(--delay) infinite;
+}
+@keyframes plain-sky-mote {
+  0% { opacity: 0; transform: translate3d(0, 0, 0); }
+  25%, 70% { opacity: var(--o, 0.7); }
+  100% { opacity: 0; transform: translate3d(var(--dx), -24vh, 0); }
 }
 
-.plain-bubble[data-in] {
-  animation-play-state: running;
+/* Phones: even fewer */
+@media (max-width: 639px) {
+  .plain-sky__mote--extra {
+    display: none;
+  }
 }
 
-.plain-bubble--d { background: var(--plain-bubble-deep); }
-.plain-bubble--m { background: var(--plain-bubble-mid); }
-.plain-bubble--l { background: var(--plain-bubble-light); }
-.plain-bubble--c { background: var(--plain-bubble-accent-1); }
-.plain-bubble--p { background: var(--plain-bubble-accent-2); }
-.plain-bubble--b { background: var(--plain-bubble-accent-3); }
-.plain-bubble--r { background: var(--plain-bubble-rose); }
-.plain-bubble--k { background: var(--plain-bubble-peach); }
-
-@keyframes plain-bubble-in {
-  from { scale: 0; }
-  to { scale: 1; }
+/* Off screen: hold every layer still (set by PlainBubbles) */
+.plain-sky:not([data-active]) span {
+  animation-play-state: paused;
 }
 
-/* a slow, looping wander along a soft loop rather than a straight back-and-forth */
-@keyframes plain-bubble-drift {
-  0%, 100% { translate: 0 0; }
-  25% { translate: var(--dx) calc(var(--dy) * 0.4); }
-  50% { translate: calc(var(--dx) * 0.35) var(--dy); }
-  75% { translate: calc(var(--dx) * -0.6) calc(var(--dy) * 0.45); }
-}
-
-@keyframes plain-bubble-breathe {
-  from { transform: scale(1); }
-  to { transform: scale(var(--swell)); }
-}
-
-/* Reduced motion: circles shown in place, still */
-.is-reduced-motion .plain-bubble {
+/* Reduced motion: the sky, still, no motes */
+.is-reduced-motion .plain-sky span {
   animation: none;
-  scale: 1;
+}
+.is-reduced-motion .plain-sky__motes {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .plain-bubble {
+  .plain-sky span {
     animation: none;
-    scale: 1;
+  }
+  .plain-sky__motes {
+    display: none;
   }
 }

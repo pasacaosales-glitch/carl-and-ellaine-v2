@@ -8,7 +8,7 @@ import localFont from "next/font/local"
 import { Music2, Disc3 } from "lucide-react"
 import { motion, useReducedMotion, type Variants } from "motion/react"
 import { PlainBubbles } from "@/components/loader/PlainBubbles"
-import { TintedDeco } from "@/components/tinted-deco"
+import { CornerFlorals } from "@/components/corner-florals"
 
 interface SpotifyPlaybackUpdate {
   playingURI: string
@@ -117,13 +117,14 @@ const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)
 // Section background = the circle pattern used across the invitation (PlainBubbles paints the base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
-// Text sitting directly on the circle pattern: navy (or dusty blue) with a soft white edge
-const textGlow = "0 1px 0 rgb(255 255 255 / 90%), 0 0 12px rgb(255 255 255 / 75%)"
+// Text sitting directly on the navy part of the sky: light ink with a navy edge
+const textGlow = "0 1px 2px rgb(1 46 75 / 85%), 0 0 18px rgb(1 46 75 / 60%)"
 const onBg = {
-  color: "var(--color-welcome-navy)",
+  color: "var(--color-motif-soft)",
   textShadow: textGlow,
 } as const
-const onBgBlue = { color: "var(--color-welcome-heading)", textShadow: textGlow } as const
+// Eyebrow + script lines on the navy pick up the blush accent
+const onBgBlue = { color: "var(--color-motif-accent)", textShadow: textGlow } as const
 
 const cardStyle = {
   background:
@@ -132,9 +133,6 @@ const cardStyle = {
   boxShadow:
     "0 0 0 6px rgb(255 255 255 / 40%), 0 28px 60px -32px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
 } as const
-
-const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
 
 const ct = {
   body: "text-sm sm:text-[0.95rem] md:text-base",
@@ -149,17 +147,13 @@ const revealVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease } },
 }
 
-function DecoImg({ src, className }: { src: string; className: string }) {
-  return <TintedDeco src={src} className={className} />
-}
-
-// Sits directly on the circle pattern, so drawn in ivory
+// Blush hairlines + diamond on the navy sky
 function DiamondDivider() {
   return (
     <div className="flex items-center justify-center gap-2" aria-hidden>
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-yellow))" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-accent))" }} />
       <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-motif-accent)" }} />
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-yellow))" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-accent))" }} />
     </div>
   )
 }
@@ -218,7 +212,7 @@ function PlaylistTitle({ title, script }: { title: string; script: string }) {
 export function WeddingPlaylist() {
   const siteConfig = useSiteConfig()
   const content = siteConfig.playlist
-  const { title, subtitle, spotifyUrl, decos } = content
+  const { title, subtitle, spotifyUrl, cornerDecos } = content
   const { groomNickname, brideNickname } = siteConfig.couple
   const fillCouple = (text: string) => text.split("{couple}").join(`${groomNickname} & ${brideNickname}`)
   const playlistName = fillCouple(content.playlistName)
@@ -305,21 +299,10 @@ export function WeddingPlaylist() {
       <PlainBubbles />
       <section
         id="playlist"
-        className="relative z-10 overflow-hidden pt-10 pb-9 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20"
+        // Extra top / bottom room so the corner florals clear the header and the card
+        className="relative z-10 overflow-hidden pt-24 pb-28 sm:pt-28 sm:pb-36 md:pt-32 md:pb-44 lg:pt-36 lg:pb-52"
       >
-        {/* Corner decorations (from site.ts) */}
-        <div className="pointer-events-none absolute left-0 top-0 z-10">
-          <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute right-0 top-0 z-10">
-          <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-          <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
-        </div>
-        <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-          <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
-        </div>
+        <CornerFlorals decos={cornerDecos} compact />
 
         <div className="relative z-20 mx-auto max-w-5xl px-4 sm:px-6 md:px-8">
           {/* Header */}
@@ -330,16 +313,6 @@ export function WeddingPlaylist() {
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
           >
-            {/* Soft white glow so the heading reads cleanly over the circles */}
-            <span
-              aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120%] w-[min(40rem,110%)] -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
-              style={{ background: "radial-gradient(ellipse at center, rgb(255 255 255 / 70%) 0%, rgb(255 255 255 / 30%) 50%, transparent 72%)" }}
-            />
-            <DecoImg
-              src={decos.headerOrnament}
-              className="mx-auto mb-2 block h-auto w-20 select-none sm:mb-4 sm:w-36 md:w-44"
-            />
             <DiamondDivider />
             {content.eyebrow ? (
               <p

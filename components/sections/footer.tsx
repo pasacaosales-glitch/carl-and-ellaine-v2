@@ -21,7 +21,7 @@ import { useSiteConfig } from "@/hooks/use-site-config"
 import { PlainBubbles } from "@/components/loader/PlainBubbles"
 import { sectionType } from "@/lib/section-typography"
 import { Cinzel } from "next/font/google"
-import { TintedDeco } from "@/components/tinted-deco"
+import { CornerFlorals } from "@/components/corner-florals"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -61,25 +61,24 @@ const palette = {
 // Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
-// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
-const onBg = {
-  color: "var(--color-on-pattern)",
-  textShadow: "0 1px 0 rgb(255 255 255 / 90%), 0 0 12px rgb(255 255 255 / 75%)",
+// Header text on the navy part of the sky: light ink with a navy edge
+const onNavy = {
+  color: "var(--color-motif-soft)",
+  textShadow: "0 1px 2px rgb(1 46 75 / 85%), 0 0 18px rgb(1 46 75 / 60%)",
 } as const
+const onNavyAccent = { ...onNavy, color: "var(--color-motif-accent)" } as const
 
-// Same, for the softer lines in the bottom bar
-const onBgSoft = { ...onBg, color: "var(--color-on-pattern-soft)" } as const
+// Bottom bar sits on the blush: solid navy ink, no halo (it blurs into the pink)
+const onBlush = { color: "var(--color-welcome-navy)" } as const
+const onBlushSoft = { color: "color-mix(in srgb, var(--color-welcome-navy) 75%, transparent)" } as const
 
 const onBgLineStyle = {
-  background: "var(--color-on-pattern-line)",
+  background: "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-welcome-navy) 45%, transparent), transparent)",
 } as const
 
 const dividerLineStyle = {
   background: "linear-gradient(to right, transparent, var(--color-motif-yellow), transparent)",
 } as const
-
-const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
 
 const ct = {
   label: sectionType.label,
@@ -146,10 +145,6 @@ const rise: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
 }
 
-function DecoImg({ src, className }: { src: string; className: string }) {
-  return <TintedDeco src={src} className={className} />
-}
-
 // The Seasons has no clean glyphs for "&" and digits — show those in Cinzel
 function SpecialCharFont({ text }: { text: string }) {
   return (
@@ -186,7 +181,7 @@ function Label({ children }: { children: ReactNode }) {
 export function Footer() {
   const siteConfig = useSiteConfig()
   const content = siteConfig.footer
-  const { decos } = content
+  const { cornerDecos } = content
   const reduceMotion = useReducedMotion()
   const year = new Date().getFullYear()
   const ceremonyDate = siteConfig.ceremony.date
@@ -303,21 +298,10 @@ export function Footer() {
       {/* Same circle pattern as the hero */}
       <PlainBubbles />
 
-      {/* Corner decorations (from site.ts) */}
-      <div className="pointer-events-none absolute left-0 top-0 z-10">
-        <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
-      </div>
-      <div className="pointer-events-none absolute right-0 top-0 z-10">
-        <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
-      </div>
-      <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-        <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
-      </div>
-      <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-        <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
-      </div>
+      <CornerFlorals decos={cornerDecos} compact />
 
-      <footer className="relative z-20 pt-14 pb-10 sm:pt-16 sm:pb-12 md:pt-20 md:pb-14">
+      {/* Extra top / bottom room so the corner florals clear the header and the bottom bar */}
+      <footer className="relative z-20 pt-24 pb-28 sm:pt-28 sm:pb-36 md:pt-32 md:pb-44 lg:pt-36 lg:pb-52">
         {/* Header: monogram + couple */}
         <motion.div
           className="relative mx-auto mb-8 flex max-w-xl flex-col items-center px-6 text-center sm:mb-10 md:mb-12"
@@ -333,8 +317,8 @@ export function Footer() {
               aria-label={`${coupleDisplayName} monogram`}
               className="block h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48"
               style={{
-                background: "var(--color-on-pattern)",
-                filter: "drop-shadow(0 2px 10px var(--color-on-pattern-glow))",
+                background: "var(--color-motif-soft)",
+                filter: "drop-shadow(0 2px 10px rgb(1 46 75 / 70%))",
                 WebkitMaskImage: `url("${siteConfig.couple.monogram}")`,
                 maskImage: `url("${siteConfig.couple.monogram}")`,
                 WebkitMaskSize: "contain",
@@ -347,19 +331,19 @@ export function Footer() {
             />
           ) : (
             <motion.div variants={rise}>
-              <DecoImg src={decos.headerOrnament} className="mx-auto block h-auto w-28 select-none sm:w-36" />
+              <Heart className="h-6 w-6" style={{ color: "var(--color-motif-accent)", fill: "var(--color-motif-accent)" }} aria-hidden />
             </motion.div>
           )}
 
           <motion.h2
             variants={rise}
             className={`${theSeasons.className} mt-4 text-2xl uppercase tracking-[0.12em] sm:mt-5 sm:text-3xl md:text-4xl`}
-            style={onBg}
+            style={onNavy}
           >
             {groomName}
             <span
               className={`${aboveTheBeyond.className} mx-2 inline-block normal-case tracking-normal sm:mx-3`}
-              style={{ fontSize: "1.1em" }}
+              style={{ fontSize: "1.1em", color: "var(--color-motif-accent)" }}
               aria-hidden
             >
               &amp;
@@ -372,16 +356,16 @@ export function Footer() {
             <motion.p
               variants={rise}
               className={`${cinzel.className} mt-2 text-[0.7rem] font-semibold uppercase tracking-[0.28em] sm:text-xs`}
-              style={onBg}
+              style={onNavyAccent}
             >
               {ceremonyDate}
             </motion.p>
           ) : null}
 
           <motion.div variants={rise} className="mt-4 flex items-center justify-center gap-2" aria-hidden>
-            <span className="h-px w-12 sm:w-20" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-yellow))" }} />
+            <span className="h-px w-12 sm:w-20" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-accent))" }} />
             <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-motif-accent)" }} />
-            <span className="h-px w-12 sm:w-20" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-yellow))" }} />
+            <span className="h-px w-12 sm:w-20" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-accent))" }} />
           </motion.div>
         </motion.div>
 
@@ -616,37 +600,37 @@ export function Footer() {
             <span className="mb-6 block h-px w-full sm:mb-8" style={onBgLineStyle} aria-hidden />
             <div className="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:gap-6 md:text-left">
               <div className="min-w-0">
-                <p className={`font-goudy-italic ${ct.body}`} style={{ ...onBg, fontWeight: 600 }}>
+                <p className={`font-goudy-italic ${ct.body}`} style={{ ...onBlush, fontWeight: 600 }}>
                   {fill(content.copyright)}
                 </p>
                 {content.tagline ? (
-                  <p className={`font-goudy-italic mt-1 ${ct.body}`} style={onBgSoft}>
+                  <p className={`font-goudy-italic mt-1 ${ct.body}`} style={onBlushSoft}>
                     {fill(content.tagline)}
                   </p>
                 ) : null}
               </div>
               {content.credit.show && (
                 <div className="min-w-0 space-y-1 md:text-right">
-                  <p className={`font-goudy-italic ${ct.body}`} style={onBgSoft}>
+                  <p className={`font-goudy-italic ${ct.body}`} style={onBlushSoft}>
                     {content.credit.developedBy}{" "}
                     <a
                       href={content.credit.developerUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold underline decoration-[var(--color-on-pattern-line)] underline-offset-2 hover:opacity-80"
-                      style={{ color: "var(--color-on-pattern)" }}
+                      className="font-semibold underline decoration-[color-mix(in_srgb,var(--color-welcome-navy)_45%,transparent)] underline-offset-2 hover:opacity-80"
+                      style={onBlush}
                     >
                       {content.credit.developerName}
                     </a>
                   </p>
-                  <p className={`font-goudy-italic ${ct.body}`} style={onBgSoft}>
+                  <p className={`font-goudy-italic ${ct.body}`} style={onBlushSoft}>
                     {content.credit.promoText}{" "}
                     <a
                       href={content.credit.promoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold underline decoration-[var(--color-on-pattern-line)] underline-offset-2 hover:opacity-80"
-                      style={{ color: "var(--color-on-pattern)" }}
+                      className="font-semibold underline decoration-[color-mix(in_srgb,var(--color-welcome-navy)_45%,transparent)] underline-offset-2 hover:opacity-80"
+                      style={onBlush}
                     >
                       {content.credit.promoName}
                     </a>
