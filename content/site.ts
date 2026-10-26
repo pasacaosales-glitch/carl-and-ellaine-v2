@@ -1266,14 +1266,13 @@ export const siteConfig = {
     //          Guests can tap the QR to enlarge it and save it with the "Save QR" button.
     //   accountNumber: shown under the name (display only)
     //   With 2+ visible accounts, guests switch between them with a toggle; each shows its QR and a "Save QR" button
-    showAccounts: false,
-    accountsTitle: "For e-gifts",
-    accountsNote: "Choose an account, then scan its QR — tap the QR to enlarge.",
-    saveQrLabel: "Save QR",
+    showAccounts: true,
+    accountsTitle: "",
+    accountsNote: "",
+    saveQrLabel: "",
     zoomNote: "Scan with your banking or e-wallet app, or save it and upload from your gallery.",
     accounts: [
-      { show: true, label: "BPI", accountName: "Raph", accountNumber: "********619", qr: "/QR/BPI.png" },
-      { show: true, label: "GCash", accountName: "JU***H H", accountNumber: "0906267****", qr: "/QR/Gcash.png" },
+      { show: true, label: "BDO", accountName: "", accountNumber: "", qr: "/QR/new-QR-BDO.png" },
       { show: false, label: "BDO", accountName: "", accountNumber: "", qr: "" },
     ] as { show: boolean; label: string; accountName: string; accountNumber: string; qr: string }[],
     // Leave any path "" to hide that decoration

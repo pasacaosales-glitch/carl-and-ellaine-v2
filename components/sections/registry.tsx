@@ -237,12 +237,14 @@ export function Registry() {
                   <span className="h-1 w-1 rotate-45" style={{ background: "var(--color-motif-accent)" }} />
                   <span className="h-px w-8 sm:w-12" style={{ background: `linear-gradient(to left, transparent, ${c.line})` }} />
                 </div>
-                <p
-                  className={`${cinzel.className} mt-3 text-[0.65rem] font-semibold uppercase tracking-[0.22em] sm:text-xs`}
-                  style={{ color: c.eyebrow }}
-                >
-                  {content.accountsTitle}
-                </p>
+                {content.accountsTitle ? (
+                  <p
+                    className={`${cinzel.className} mt-3 text-[0.65rem] font-semibold uppercase tracking-[0.22em] sm:text-xs`}
+                    style={{ color: c.eyebrow }}
+                  >
+                    {content.accountsTitle}
+                  </p>
+                ) : null}
                 {content.accountsNote ? (
                   <p className="font-goudy-italic mt-1 text-[0.75rem] sm:text-sm" style={{ color: c.soft }}>
                     {content.accountsNote}
@@ -298,7 +300,7 @@ export function Registry() {
                   id="registry-tabpanel"
                   role={accounts.length > 1 ? "tabpanel" : undefined}
                   aria-labelledby={accounts.length > 1 ? `registry-tab-${activeIndex}` : undefined}
-                  className="mx-auto mt-4 max-w-[17.5rem]"
+                  className="mx-auto mt-5 max-w-[17.5rem]"
                 >
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.div
@@ -307,28 +309,22 @@ export function Registry() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.98 }}
                       transition={{ duration: 0.28, ease }}
-                      className="relative flex flex-col items-center overflow-hidden rounded-[1.4rem] px-5 pb-5 pt-4"
-                      style={{
-                        background: c.accountCard,
-                        border: `1px solid ${c.cardEdge}`,
-                        boxShadow: `0 18px 34px -22px color-mix(in srgb, ${c.title} 45%, transparent)`,
-                      }}
+                      className="relative flex flex-col items-center"
                     >
-                      {/* Inner sage frame */}
-                      <span
-                        aria-hidden
-                        className="pointer-events-none absolute inset-1.5 rounded-[1.1rem] border"
-                        style={{ borderColor: `color-mix(in srgb, ${c.line} 45%, transparent)` }}
-                      />
-                      <p className={`${theSeasons.className} relative mb-3 text-lg uppercase tracking-[0.14em]`} style={{ color: c.title }}>
-                        {active.label}
-                      </p>
+                      {/* Bank name between hairlines */}
+                      <div className="mb-4 flex items-center justify-center gap-3">
+                        <span className="h-px w-8 sm:w-10" style={{ background: `linear-gradient(to right, transparent, ${c.line})` }} aria-hidden />
+                        <p className={`${theSeasons.className} text-2xl uppercase leading-none tracking-[0.22em] sm:text-[1.75rem]`} style={{ color: c.title }}>
+                          {active.label}
+                        </p>
+                        <span className="h-px w-8 sm:w-10" style={{ background: `linear-gradient(to left, transparent, ${c.line})` }} aria-hidden />
+                      </div>
                       {active.qr ? (
                         <button
                           type="button"
                           onClick={() => setZoomQr({ src: active.qr, label: active.label })}
-                          className="group relative aspect-square w-full max-w-[13rem] rounded-2xl bg-white p-2 transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)]"
-                          style={{ boxShadow: `0 0 0 1px ${c.cardEdge}, 0 0 0 6px color-mix(in srgb, var(--color-motif-medium) 14%, transparent), 0 14px 26px -16px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)` }}
+                          className="group relative aspect-square w-full max-w-[15rem] rounded-2xl bg-white p-2.5 transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)] sm:max-w-[16rem]"
+                          style={{ boxShadow: `0 0 0 1px ${c.cardEdge}, 0 18px 32px -18px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)` }}
                           aria-label={`Enlarge ${active.label} QR code`}
                         >
                           <span className="relative block h-full w-full">
@@ -337,7 +333,7 @@ export function Registry() {
                               alt={`${active.label} QR code`}
                               fill
                               unoptimized
-                              sizes="208px"
+                              sizes="256px"
                               className="object-contain"
                             />
                           </span>
@@ -371,7 +367,7 @@ export function Registry() {
                           {active.accountNumber}
                         </p>
                       ) : null}
-                      {active.qr ? (
+                      {active.qr && content.saveQrLabel ? (
                         <a
                           href={active.qr}
                           download={qrFileName(active.label, active.qr)}
@@ -471,15 +467,17 @@ export function Registry() {
             <p className="font-goudy-italic mt-3 text-sm" style={{ color: c.body }}>
               {content.zoomNote}
             </p>
-            <a
-              href={zoomQr.src}
-              download={qrFileName(zoomQr.label, zoomQr.src)}
-              className={`${cinzel.className} mt-4 inline-flex items-center gap-1.5 rounded-full border px-5 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:scale-[1.03] hover:brightness-110`}
-              style={{ background: buttonBg, color: buttonText, borderColor: "rgb(255 255 255 / 70%)" }}
-            >
-              <Download className="h-3.5 w-3.5" aria-hidden />
-              {content.saveQrLabel}
-            </a>
+            {content.saveQrLabel ? (
+              <a
+                href={zoomQr.src}
+                download={qrFileName(zoomQr.label, zoomQr.src)}
+                className={`${cinzel.className} mt-4 inline-flex items-center gap-1.5 rounded-full border px-5 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:scale-[1.03] hover:brightness-110`}
+                style={{ background: buttonBg, color: buttonText, borderColor: "rgb(255 255 255 / 70%)" }}
+              >
+                <Download className="h-3.5 w-3.5" aria-hidden />
+                {content.saveQrLabel}
+              </a>
+            ) : null}
           </div>
         </div>,
         document.body,
