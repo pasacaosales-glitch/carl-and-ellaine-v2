@@ -520,10 +520,7 @@ export const siteConfig = {
     dateLabels: ["Month", "Day", "Year"],
     // Polaroids that rise out of the envelope next to the invitation card (components/loader/Hero.tsx).
     // Shown in both "plain" and "photos" display. Two photos = one each side; [] = no envelope photos in plain mode.
-    envelopePhotos: [
-      "/mobile-background-new/loveStory (4).png", // left
-      "/mobile-background-new/loveStory (8).png", // right
-    ],
+    envelopePhotos: [] as string[],
     // Plain mode invitation card — classic invitation wording around the couple's names ("" to hide a line)
     plainInvite: {
       ornament: DECOR.headerOrnament,
