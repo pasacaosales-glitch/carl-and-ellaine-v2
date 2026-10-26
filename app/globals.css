@@ -321,30 +321,30 @@
    --color-countdown-label: #F5C5C3;
    
    /* ==========================================
-      ENVELOPE — BLUSH & ROSE FAMILY (no navy: pale blush paper, rose folds)
+      ENVELOPE — DEEP BLUE paper outside, blush liner inside
       ========================================== */
    
    /* Main paper */
-   --color-envelope-paper: color-mix(in srgb, #F5C5C3 55%, white);
+   --color-envelope-paper: color-mix(in srgb, #0B2A5B 85%, #1E4A8A);
    
    /* Back panel / inside */
-   --color-envelope-base: color-mix(in srgb, #F69F9D 72%, #F5C5C3);
+   --color-envelope-base: #0B2A5B;
    
    /* Lit edges */
-   --color-envelope-highlight: color-mix(in srgb, #F5C5C3 50%, white);
+   --color-envelope-highlight: color-mix(in srgb, #1E4A8A 80%, #0B2A5B);
    
    /* Flap folds */
-   --color-envelope-fold: color-mix(in srgb, #F69F9D 82%, #C2636F);
+   --color-envelope-fold: color-mix(in srgb, #0B2A5B 75%, #061733);
    
    /* Shadows */
-   --color-envelope-shadow: color-mix(in srgb, #F69F9D 62%, #9E4A57);
+   --color-envelope-shadow: #04112A;
    
    /* Envelope liner pattern (inside of the flap and back) */
    --color-envelope-liner: color-mix(in srgb, #F5C5C3 28%, white);
    --color-envelope-liner-ink: color-mix(in srgb, #F69F9D 70%, #B8705F);
    
    /* Crease hairlines */
-   --color-envelope-crease: rgb(255 255 255 / 55%);
+   --color-envelope-crease: rgb(255 255 255 / 22%);
    
    /* ==========================================
       OPTIONAL SEMANTIC COLORS

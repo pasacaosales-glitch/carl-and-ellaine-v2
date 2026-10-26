@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, type ReactNode } from "react"
 import { motion, useReducedMotion, type Variants } from "motion/react"
+import Image from "next/image"
 import localFont from "next/font/local"
 import {
   Instagram,
@@ -311,24 +312,16 @@ export function Footer() {
           viewport={{ once: true, amount: 0.3 }}
         >
           {content.showMonogram && siteConfig.couple.monogram ? (
-            <motion.span
-              variants={rise}
-              role="img"
-              aria-label={`${coupleDisplayName} monogram`}
-              className="block h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48"
-              style={{
-                background: "var(--color-motif-soft)",
-                filter: "drop-shadow(0 2px 10px rgb(1 46 75 / 70%))",
-                WebkitMaskImage: `url("${siteConfig.couple.monogram}")`,
-                maskImage: `url("${siteConfig.couple.monogram}")`,
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-              }}
-            />
+            // Monogram in its own colors (no tint), with a soft navy shadow for lift
+            <motion.div variants={rise} className="relative block h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48">
+              <Image
+                src={siteConfig.couple.monogram}
+                alt={`${coupleDisplayName} monogram`}
+                fill
+                sizes="(min-width: 768px) 192px, (min-width: 640px) 160px, 128px"
+                className="object-contain drop-shadow-[0_2px_10px_rgb(1_46_75_/_45%)]"
+              />
+            </motion.div>
           ) : (
             <motion.div variants={rise}>
               <Heart className="h-6 w-6" style={{ color: "var(--color-motif-accent)", fill: "var(--color-motif-accent)" }} aria-hidden />

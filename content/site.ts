@@ -370,9 +370,9 @@ const DISPLAY_MODE = "plain" as "photos" | "plain"
 
 // ── Shared images ───────────────────────────────────────────────────────────
 const BRAND = {
-  monogram: "/monogram/monogram-new.png",
+  monogram: "/monogram/Rose-Pink C E Monogram Crest.png",
   coupleNameImage: "/Details/newcoupelNames.png", // couple-name lettering (loader, envelope)
-  seal: "/monogram/wax-seal.png", // envelope wax seal
+  seal: "/monogram/Rose-Pink Monogram Wax Seal.png", // envelope wax seal
   backgroundMusic: "/background_music/Goodness Of God X Oceans X Gratitude (Wedding Entrance version).mp3",
 }
 
@@ -487,13 +487,14 @@ export const siteConfig = {
       // envelope and the home hero (the loading screen itself stays plain deep blue)
       backgroundMarquee: true,
       // Lines above the couple's names, top to bottom
-      linesAbove: ["Together with their families", "you are cordially invited to", "the wedding of"],
+      linesAbove: [],
       // Joins the two names
       joiner: "and",
       // true = spell the ceremony time out ("At two o'clock in the afternoon")
       timeInWords: true,
-      verse: "I have found the one whom my soul loves.",
-      verseCitation: "Song of Solomon 3:4",
+      // Shown at the top of the card, above the names
+      verse: "Love never gives up, never loses faith, is always hopeful, and endures through every circumstance.",
+      verseCitation: "1 Corinthians 13:7",
     },
     // Colors used when display is "plain"
     plainTheme: {
@@ -529,8 +530,11 @@ export const siteConfig = {
       lineAbove: "Together with their families",
       lineBelow: "request the honour of your presence",
     },
-    showCeremonyDetails: true,
+    // false = the opening page shows only the verse, names and date (no time, venue or countdown)
+    showCeremonyDetails: false,
     eyebrow: "You are invited",
+    // Line on the card inside the envelope, between the date and the names (components/loader/Hero.tsx)
+    letterMessage: "With joyful hearts, we invite you to celebrate God's faithfulness in our lives",
     message: "We can't wait to celebrate with you",
     // Rotates under the progress bar while the invitation loads
     statusMessages: [
@@ -685,6 +689,20 @@ export const siteConfig = {
     ],
   },
   // Gallery section (components/sections/gallery.tsx)
+  // Verse & invitation section below the love story (components/sections/countdown.tsx, id "countdown")
+  invitationVerse: {
+    verse: "He has made everything beautiful in His time.",
+    citation: "Ecclesiastes 3:11",
+    // Each entry is one line of the invitation message
+    message: [
+      "With hearts full of gratitude to God,",
+      "we joyfully invite you to celebrate",
+      "the beginning of our forever as we unite",
+      "in love and faith through His grace.",
+    ],
+    // Sign-off under the message; names come from couple.groomNickname / brideNickname
+    signOffJoiner: "&",
+  },
   gallery: {
     eyebrow: "Our Moments",
     title: "Gallery",

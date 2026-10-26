@@ -232,13 +232,12 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
           groom={siteConfig.couple.groomNickname}
           bride={siteConfig.couple.brideNickname}
           weddingDate={hasValidDate ? weddingDate : null}
-          ceremonyTime={ceremonyLine}
+          ceremonyTime={content.showCeremonyDetails ? ceremonyLine : ''}
           venueName={content.showCeremonyDetails ? siteConfig.ceremony.location ?? '' : ''}
           venueAddress={content.showCeremonyDetails ? siteConfig.ceremony.venue ?? '' : ''}
-          countdownText={countdownText}
+          countdownText={content.showCeremonyDetails ? countdownText : ''}
           statusMessage={statusMessages[statusIndex]}
           statusKey={statusIndex}
-          durationMs={totalDurationMs}
           reduceMotion={!!reduceMotion}
           // Loader keeps the plain deep-blue sky; the photo marquee starts at the envelope
           photos={[]}

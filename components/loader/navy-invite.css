@@ -459,7 +459,8 @@
   width: 100%;
   max-width: 34rem;
   margin: 0 auto;
-  padding: clamp(5rem, 13vh, 7.5rem) 1.75rem clamp(4.25rem, 11vh, 6rem);
+  /* Bottom padding leaves room for the progress bar pinned below the card */
+  padding: clamp(5rem, 13vh, 7.5rem) 1.75rem clamp(6.5rem, 16vh, 8.5rem);
   text-align: center;
   transition:
     opacity 0.6s var(--nv-ease),
@@ -499,8 +500,8 @@
   font-size: clamp(2.9rem, 14vw, 5.6rem);
   font-weight: 400;
   line-height: 0.95;
-  letter-spacing: 0.08em;
-  margin-right: -0.08em;
+  letter-spacing: 0.12em;
+  margin-right: -0.12em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -535,13 +536,61 @@
 }
 .nv-letter { animation-delay: var(--nv-d, 0ms), calc(var(--nv-d, 0ms) + 1.6s + var(--i) * 110ms); }
 
-/* "and" in script, drawn in with a soft pen stroke and tucked between the names */
+/* "and" row: breathing room between the names, hairlines with gem tips either side */
+.nv-names__joiner-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  margin: clamp(0.45rem, 1.6vh, 0.9rem) 0;
+}
+
+.nv-names__flourish {
+  position: relative;
+  flex: 0 1 clamp(2.75rem, 16vw, 5.5rem);
+  height: 1px;
+  transform: scaleX(0);
+  animation: nv-flourish 1.1s var(--nv-ease) calc(var(--nv-d, 0ms) + 700ms) forwards;
+}
+
+.nv-names__flourish--left {
+  background: linear-gradient(90deg, transparent, var(--nv-rose));
+  transform-origin: 100% 50%;
+}
+
+.nv-names__flourish--right {
+  background: linear-gradient(90deg, var(--nv-rose), transparent);
+  transform-origin: 0 50%;
+}
+
+/* Tiny diamond at the outer tip of each hairline */
+.nv-names__flourish::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  background: var(--nv-pale);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--nv-blush) 80%, transparent);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.nv-names__flourish--left::after { left: 0; }
+.nv-names__flourish--right::after { right: 0; }
+
+@keyframes nv-flourish {
+  to { transform: scaleX(1); }
+}
+
+/* "and" in script, drawn in with a soft pen stroke between the names */
 .nv-names__joiner {
   position: relative;
   z-index: 1;
   display: block;
-  margin: -0.32em 0 -0.38em;
-  padding: 0.1em 0.3em 0.2em;
+  flex: none;
+  margin: 0;
+  padding: 0.05em 0.3em 0.15em;
   font-size: clamp(2.3rem, 10.5vw, 4.1rem);
   line-height: 1;
   color: var(--nv-pale);
@@ -771,13 +820,32 @@
   color: var(--nv-rose);
 }
 
-/* Countdown + progress */
+/* Opening verse above the names: citation first, with room before the names */
+.nv-verse--top {
+  max-width: 22rem;
+  margin-bottom: clamp(1.75rem, 7vh, 4rem);
+}
+
+.nv-verse--top .nv-verse__cite {
+  margin: 0 0 0.55rem;
+  font-size: 0.62rem;
+}
+
+/* Countdown + progress — pinned to the bottom centre, between the lower florals */
 .nv-status {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(1.75rem, 6vh, 3.25rem));
+  z-index: 6;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.2rem;
+  gap: 0.65rem;
+  margin: 0 auto;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  pointer-events: none;
 }
 
 .nv-status__countdown {
@@ -795,44 +863,33 @@
   backdrop-filter: blur(4px);
 }
 
-.nv-progress {
-  position: relative;
-  width: min(11rem, 50vw);
-  height: 1px;
-  background: color-mix(in srgb, var(--nv-pale) 18%, transparent);
-}
-
-.nv-progress__bar {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, var(--nv-rose-deep), var(--nv-rose-light));
-  transform-origin: left center;
-  transform: scaleX(0);
-  animation-name: nv-progress;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-  box-shadow: 0 0 8px var(--nv-rose);
-}
-
-@keyframes nv-progress {
-  to { transform: scaleX(1); }
+/* Infinity loader in rose gold with a soft glow */
+.nv-loader {
+  --infinity-from: var(--nv-rose);
+  --infinity-to: var(--nv-rose-light);
+  --infinity-duration: 4.5s;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--nv-blush) 45%, transparent));
 }
 
 .nv-status__message {
   margin: 0;
-  font-family: var(--nv-goudy);
-  font-size: 0.78rem;
-  font-style: italic;
-  color: color-mix(in srgb, var(--nv-pale) 72%, transparent);
+  font-family: var(--nv-cinzel);
+  font-size: 0.56rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-align: center;
+  color: color-mix(in srgb, var(--nv-pale) 70%, transparent);
   animation: nv-up 0.8s var(--nv-ease) both;
 }
 
 /* ---------- Short screens: tighten so everything fits ---------- */
 
 @media (max-height: 760px) {
-  .nv-card { gap: 0.45rem; padding-top: 4.25rem; padding-bottom: 3.25rem; }
+  .nv-card { gap: 0.45rem; padding-top: 4.25rem; padding-bottom: 5.5rem; }
+  .nv-status { bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem); gap: 0.5rem; }
   .nv-names__name { font-size: clamp(2.5rem, 12vw, 4.6rem); }
   .nv-names__joiner { font-size: clamp(2rem, 9vw, 3.4rem); }
+  .nv-names__joiner-row { margin: 0.3rem 0; }
   .nv-date__day { font-size: 2.6rem; }
   .nv-divider { display: none; }
 }

@@ -143,6 +143,18 @@ export const Hero: React.FC<HeroProps> = ({
     return `${month} | ${day} | ${year}`;
   }, [siteConfig.ceremony.date, siteConfig.wedding.date]);
 
+  // Card inside the envelope: "JAN | 23 | 2027"
+  const letterDate = useMemo(() => {
+    const parsed = parseWeddingDate(siteConfig.ceremony.date ?? siteConfig.wedding.date);
+    const wedding = new Date(`${parsed.month} ${parsed.day}, ${parsed.year}`);
+    if (Number.isNaN(wedding.getTime())) {
+      return `${String(parsed.month).slice(0, 3).toUpperCase()} | ${String(parsed.day).padStart(2, '0')} | ${parsed.year}`;
+    }
+    const month = wedding.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    const day = String(wedding.getDate()).padStart(2, '0');
+    return `${month} | ${day} | ${wedding.getFullYear()}`;
+  }, [siteConfig.ceremony.date, siteConfig.wedding.date]);
+
   const weddingDateGhost = useMemo(() => {
     const [month, day, year] = letterDateNumeric.split(' | ');
     return { month, day, year };
@@ -743,8 +755,10 @@ export const Hero: React.FC<HeroProps> = ({
                           </span>
                         ))}
                       </span>
-                      <span className="env-invite-letter-date">{letterDateNumeric}</span>
-                      <span className="env-invite-letter-invited">{content.eyebrow}</span>
+                      <span className="env-invite-letter-date">{letterDate}</span>
+                      <span className="env-invite-letter-invited env-invite-letter-invited--message">
+                        {content.letterMessage ?? content.eyebrow}
+                      </span>
                       <h2 className="env-invite-letter-names env-invite-letter-names--text" aria-label={coupleNames}>
                         <span className={`${theSeasons.className} env-invite-names__nick`} aria-hidden="true">
                           {groomName}

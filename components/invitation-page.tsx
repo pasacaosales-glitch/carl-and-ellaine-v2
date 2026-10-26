@@ -258,25 +258,32 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
                 animate={cinematicEntry ? "show" : detailsVisible ? "show" : "hidden"}
                 transition={cinematicEntry ? undefined : { duration: 0.01 }}
               >
-               <Welcome />
+               {/* <Welcome /> */}
               {/* <CoupleVideo /> */}
               {/* LoveStory paints its own sky (an outer PlainBubbles would cover it) */}
-              <LoveStory />
+              {/* <LoveStory /> */}
               <Countdown />
-              <Gallery />
-              <Messages />
-              {/* Details includes the Attire Guidelines and Gentle Reminders */}
               <Details />
-              <WeddingTimeline />
+              <Registry />
               {showEntourage && <Entourage sponsorsList={sponsorsList} />}
               <GuestList />
-              <BookOfGuests />
-              <Registry />
-              <FAQ />
+              <Messages />
+              <SnapShare />
               <WeddingPlaylist />
+              {/* <Gallery /> */}
+
+              {/* Details includes the Attire Guidelines and Gentle Reminders */}
+ 
+              {/* <WeddingTimeline /> */}
+
+
+              {/* <BookOfGuests /> */}
+
+              {/* <FAQ /> */}
+
               {/* <MessageVideo /> */}
 
-              <SnapShare />
+
 
 
               <SeeYouThere />

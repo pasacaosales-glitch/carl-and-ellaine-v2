@@ -305,6 +305,9 @@ function FadeRule({ className = "" }: { className?: string }) {
 
 const revealEase = [0.22, 1, 0.36, 1] as const
 
+// Gentle Reminders card is hidden for now; set to true to show it again
+const SHOW_REMINDERS = false
+
 const reminderListVariants: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
@@ -773,7 +776,7 @@ export function Details() {
   const receptionImages = isCombined ? [] : reception.image
   // "plain" display mode (loadingScreen.display) shows no photos above the reminders
   const isPlain = siteConfig.loadingScreen?.display === "plain"
-  const reminderImages = isPlain ? [] : reminders.images
+  const reminderImages = !SHOW_REMINDERS || isPlain ? [] : reminders.images
   const paletteHexes = toPaletteColors(attire.palette).map((c) => c.hex)
   // Guard against null entries (e.g. a stray comma in ATTIRE.show).
   // Principal & Secondary Sponsors and Entourage cards are never shown here.
@@ -1007,7 +1010,8 @@ export function Details() {
             })}
           </div>
 
-          {/* Gentle Reminders */}
+          {/* Gentle Reminders (hidden — see SHOW_REMINDERS) */}
+          {SHOW_REMINDERS && (
           <motion.div
             className="relative mx-auto mt-10 max-w-2xl sm:mt-12"
             initial={reduceMotion ? false : { opacity: 0, y: 28, scale: 0.98 }}
@@ -1075,6 +1079,7 @@ export function Details() {
               </motion.div>
             </div>
           </motion.div>
+          )}
 
         </div>
       </Section>

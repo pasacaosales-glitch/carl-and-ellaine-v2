@@ -26,7 +26,7 @@ const navLinks: { href: string; label: string; wideOnly?: boolean }[] = [
   { href: "#home", label: "Home" },
   { href: "#welcome", label: "Welcome", wideOnly: true },
   { href: "#love-story", label: "Our Story" },
-  { href: "#countdown", label: "Countdown", wideOnly: true },
+  { href: "#countdown", label: "Our Verse", wideOnly: true },
   { href: "#gallery", label: "Gallery" },
   { href: "#details", label: "Details" },
   { href: "#attire", label: "Attire", wideOnly: true },

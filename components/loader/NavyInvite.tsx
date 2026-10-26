@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Cinzel } from 'next/font/google';
 import localFont from 'next/font/local';
 import { NavyMarquee } from '@/components/loader/navy-marquee';
+import { InfinityLoader } from '@/components/loader/InfinityLoader';
 import './navy-invite.css';
 
 // Same type system as the hero (components/sections/hero.tsx):
@@ -49,7 +50,6 @@ interface NavyInviteProps {
   countdownText: string;
   statusMessage?: string;
   statusKey: number;
-  durationMs: number;
   reduceMotion: boolean;
   /** Background marquee photos (already URL-encoded); empty = plain navy sky */
   photos?: readonly string[];
@@ -64,11 +64,12 @@ const CURTAIN = {
 };
 
 // Card choreography (ms after the stage opens) — CSS-delay driven so it plays in sync before hydration:
-// florals settle in → invitation lines → names rise letter by letter → divider → date → time & venue → verse → countdown
+// florals settle in → verse → invitation lines → names rise letter by letter → divider → date → time & venue → countdown
 const T = {
   florals: 0,
   floralStagger: 160,
   frame: 300,
+  verse: 500,
   lines: 650,
   lineStagger: 200,
   groom: 1300,
@@ -79,7 +80,6 @@ const T = {
   date: 3650,
   time: 4450,
   venue: 4750,
-  verse: 5200,
   status: 5600,
 };
 
@@ -155,7 +155,6 @@ export function NavyInvite({
   countdownText,
   statusMessage,
   statusKey,
-  durationMs,
   reduceMotion,
   photos = [],
 }: NavyInviteProps) {
@@ -165,12 +164,10 @@ export function NavyInvite({
 
   const date = weddingDate
     ? {
-        weekday: weddingDate.toLocaleString('en-US', { weekday: 'long' }),
         month: weddingDate.toLocaleString('en-US', { month: 'long' }),
         day: String(weddingDate.getDate()).padStart(2, '0'),
         year: String(weddingDate.getFullYear()),
         label: weddingDate.toLocaleDateString('en-US', {
-          weekday: 'long',
           month: 'long',
           day: 'numeric',
           year: 'numeric',
@@ -179,8 +176,6 @@ export function NavyInvite({
     : null;
   const timeLine = ceremonyTime && invite.timeInWords ? timeToWords(ceremonyTime) : ceremonyTime;
   const lines = invite.linesAbove.filter(Boolean);
-  // The bar fills from when it appears until the loader hands off
-  const progressStart = stage + T.status;
 
   return (
     <div
@@ -259,6 +254,13 @@ export function NavyInvite({
       </div>
 
       <main className="nv-card">
+        {invite.verse && (
+          <figure className="nv-verse nv-verse--top nv-in" style={at(T.verse)}>
+            {invite.verseCitation && <figcaption className="nv-verse__cite">{invite.verseCitation}</figcaption>}
+            <blockquote className="nv-verse__text">“{invite.verse}”</blockquote>
+          </figure>
+        )}
+
         {lines.length > 0 && (
           <div className="nv-lines">
             {lines.map((line, i) => (
@@ -272,8 +274,11 @@ export function NavyInvite({
         <h1 className="nv-names" aria-label={`${groom} ${invite.joiner} ${bride}`}>
           <NameLetters name={groom} start={T.groom} at={at} />
           {invite.joiner && (
-            <span className={`${aboveTheBeyond.className} nv-names__joiner`} style={at(T.joiner)} aria-hidden="true">
-              {invite.joiner}
+            // "and" sits on its own row, with rose-gold hairlines drawing out to either side once it is written
+            <span className="nv-names__joiner-row" style={at(T.joiner)} aria-hidden="true">
+              <span className="nv-names__flourish nv-names__flourish--left" />
+              <span className={`${aboveTheBeyond.className} nv-names__joiner`}>{invite.joiner}</span>
+              <span className="nv-names__flourish nv-names__flourish--right" />
             </span>
           )}
           <NameLetters name={bride} start={T.bride} at={at} />
@@ -287,9 +292,6 @@ export function NavyInvite({
 
         {date && (
           <div className="nv-date" role="img" aria-label={date.label}>
-            <span className="nv-date__weekday nv-track-in" style={at(T.date)}>
-              {date.weekday}
-            </span>
             <div className="nv-date__row">
               <span className="nv-date__side nv-date__side--month" style={at(T.date + 350)}>
                 {date.month}
@@ -329,37 +331,18 @@ export function NavyInvite({
           </div>
         )}
 
-        {invite.verse && (
-          <figure className="nv-verse nv-in" style={at(T.verse)}>
-            <blockquote className="nv-verse__text">“{invite.verse}”</blockquote>
-            {invite.verseCitation && <figcaption className="nv-verse__cite">{invite.verseCitation}</figcaption>}
-          </figure>
-        )}
-
-        <div className="nv-status nv-in" style={at(T.status)}>
-          {countdownText && <p className="nv-status__countdown">{countdownText}</p>}
-          <div
-            className="nv-progress"
-            role="progressbar"
-            aria-label="Loading invitation"
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <span
-              className="nv-progress__bar"
-              style={{
-                animationDelay: `${progressStart}ms`,
-                animationDuration: `${Math.max(durationMs - progressStart, 1200)}ms`,
-              }}
-            />
-          </div>
-          {statusMessage && (
-            <p key={statusKey} className="nv-status__message">
-              {statusMessage}
-            </p>
-          )}
-        </div>
       </main>
+
+      {/* Loading progress, anchored to the bottom of the screen below the card */}
+      <div className="nv-status nv-in" style={at(T.status)}>
+        {countdownText && <p className="nv-status__countdown">{countdownText}</p>}
+        <InfinityLoader className="nv-loader" label="Loading invitation" />
+        {statusMessage && (
+          <p key={statusKey} className="nv-status__message">
+            {statusMessage}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

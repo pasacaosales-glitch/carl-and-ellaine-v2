@@ -1,16 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { motion } from "motion/react"
 import { Cinzel } from "next/font/google"
 import localFont from "next/font/local"
-import { Instagram, Facebook, Twitter, Share2, Copy, Download, Check, BookOpen } from "lucide-react"
+import { Share2, Copy, Download, Check } from "lucide-react"
 import { useQrColors } from "@/hooks/use-css-color"
 import { QRCodeCanvas } from "qrcode.react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
-import Image from "next/image"
-import { CrossfadeImages } from "@/components/crossfade-images"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -38,12 +35,6 @@ const OUTSIDE_TITLE_SHADOW =
   "0 1px 0 color-mix(in srgb, var(--color-welcome-navy) 45%, transparent), 0 2px 10px color-mix(in srgb, var(--color-welcome-navy) 40%, transparent), 0 8px 28px color-mix(in srgb, var(--color-welcome-navy) 30%, transparent)"
 const READABLE_SHADOW =
   "0 1px 2px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), 0 2px 10px color-mix(in srgb, var(--color-welcome-navy) 40%, transparent)"
-// Text over the moving verse photos: tighter dark edge + wide halo
-const PHOTO_TEXT_SHADOW =
-  "0 1px 1px rgb(8 14 24 / 95%), 0 1px 4px rgb(8 14 24 / 85%), 0 3px 12px rgb(8 14 24 / 70%), 0 8px 30px rgb(8 14 24 / 55%)"
-// Verse accents (icon, quote marks, reference): a warm light tone that holds up on the dark glass
-const VERSE_ACCENT = "color-mix(in srgb, var(--color-motif-silver) 55%, #FFFFFF)"
-
 // Card palette — white paper, navy headings, body-blue text, dusty-blue buttons.
 const TEAL = "var(--color-welcome-navy)"
 const BUTTON =
@@ -52,7 +43,6 @@ const BLUE = "var(--color-welcome-heading)"
 const IVORY = "#FFFFFF"
 const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)"
 const PALE = "color-mix(in srgb, var(--color-motif-medium) 16%, white)"
-const TEAL_SOFT = "color-mix(in srgb, var(--color-welcome-text) 75%, white)"
 const BUTTON_SHADOW =
   "0 0 0 3px color-mix(in srgb, var(--color-motif-medium) 22%, transparent), 0 12px 24px -12px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)"
 
@@ -60,7 +50,6 @@ const palette = {
   body: "var(--color-welcome-text)",
   heading: TEAL,
   label: BLUE,
-  accent: BLUE,
 } as const
 
 const outsideDividerLineStyle = {
@@ -75,7 +64,6 @@ const ct = {
   body: sectionType.text,
   bodyLg: sectionType.textRelaxed,
   label: sectionType.label,
-  cardTitle: `${sectionType.subheader} lg:text-xl`,
   btn: sectionType.label,
 } as const
 
@@ -141,17 +129,6 @@ function ContentCard({ children, className = "" }: { children: React.ReactNode; 
   )
 }
 
-function CardTitle({ children, as: Tag = "h4" }: { children: React.ReactNode; as?: "h4" | "h5" }) {
-  return (
-    <Tag
-      className={`${cinzel.className} ${ct.cardTitle} text-center font-semibold uppercase tracking-[0.1em]`}
-      style={{ color: palette.heading }}
-    >
-      {children}
-    </Tag>
-  )
-}
-
 function PrimaryButton({
   onClick,
   children,
@@ -178,196 +155,18 @@ function PrimaryButton({
   )
 }
 
-const SOCIAL = {
-  instagram: { Icon: Instagram, label: "Instagram" },
-  facebook: { Icon: Facebook, label: "Facebook" },
-  tiktok: { Icon: Share2, label: "TikTok" },
-  twitter: { Icon: Twitter, label: "Twitter" },
-} as const
-
-function usePrefersReducedMotion() {
-  const [reduce, setReduce] = useState(false)
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-    setReduce(mq.matches)
-    const onChange = () => setReduce(mq.matches)
-    mq.addEventListener("change", onChange)
-    return () => mq.removeEventListener("change", onChange)
-  }, [])
-  return reduce
-}
-
-const VERSE_MS = 7000
-
-type Verse = { text: string; reference: string }
-
-/**
- * Bible verse panel: couple photos cross-fade (layered, with a slow drift) behind a rotating
- * verse. Dots jump to a verse; animation stops for reduced-motion users.
- */
-function VersePanel({ eyebrow, images, quotes }: { eyebrow: string; images: string[]; quotes: Verse[] }) {
-  const [imageIdx, setImageIdx] = useState(0)
-  const [verseIdx, setVerseIdx] = useState(0)
-  const reduceMotion = usePrefersReducedMotion()
-  // Restarts whenever the verse changes, so picking a dot gives it a full turn
-  useEffect(() => {
-    if (reduceMotion) return
-    const timer = setTimeout(() => {
-      setImageIdx((i) => (i + 1) % images.length)
-      setVerseIdx((v) => (v + 1) % quotes.length)
-    }, VERSE_MS)
-    return () => clearTimeout(timer)
-  }, [verseIdx, reduceMotion, images.length, quotes.length])
-
-  return (
-    <figure
-      className="relative isolate mt-8 overflow-hidden rounded-[1.5rem] sm:mt-10 sm:rounded-[1.75rem] md:mt-12"
-      style={{
-        border: "1px solid rgb(255 255 255 / 55%)",
-        boxShadow:
-          "0 0 0 5px rgb(255 255 255 / 20%), 0 28px 60px -30px color-mix(in srgb, var(--color-welcome-navy) 70%, transparent)",
-      }}
-    >
-      {/* Cross-fading photo backdrop */}
-      <div className="absolute inset-0 -z-10" aria-hidden>
-        <CrossfadeImages
-          images={images.map((src) => encodeURI(src))}
-          active={imageIdx}
-          sizes="(max-width: 1152px) 100vw, 1100px"
-          className="object-cover"
-          reduceMotion={reduceMotion}
-        />
-        {/* Full-cover blue gradient: deepest through the middle where the heading and verse sit */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgb(24 46 76 / 55%) 0%, rgb(20 40 68 / 72%) 30%, rgb(20 40 68 / 76%) 60%, rgb(24 46 76 / 58%) 100%)",
-          }}
-        />
-      </div>
-
-      <div className="flex min-h-[24rem] items-center justify-center px-4 py-10 sm:min-h-[26rem] sm:px-10 sm:py-14 md:min-h-[30rem] md:px-16">
-        <div className="flex w-full max-w-3xl flex-col items-center text-center">
-          {/* Fixed header — stays put while the verse below changes */}
-          <span
-            className="flex h-10 w-10 items-center justify-center rounded-full sm:h-11 sm:w-11"
-            style={{
-              background: "rgb(16 28 44 / 45%)",
-              boxShadow: "inset 0 0 0 1px rgb(255 255 255 / 60%), 0 4px 14px rgb(8 14 24 / 45%)",
-            }}
-          >
-            <BookOpen className="h-[18px] w-[18px] sm:h-5 sm:w-5" style={{ color: VERSE_ACCENT }} aria-hidden />
-          </span>
-          <p
-            className={`${cinzel.className} mt-4 text-[0.75rem] font-semibold uppercase tracking-[0.24em] sm:text-[0.8125rem] sm:tracking-[0.3em]`}
-            style={{ color: "#FFFFFF", textShadow: PHOTO_TEXT_SHADOW }}
-          >
-            {eyebrow}
-          </p>
-          <div className="mt-4 sm:mt-5">
-            <OutsideDivider />
-          </div>
-
-          {/* Every verse shares one grid cell, so the card is always as tall as the longest
-              verse and nothing above shifts; the verses cross-fade in place. */}
-          <div className="mt-6 grid w-full sm:mt-7" aria-live="polite">
-            {quotes.map((q, i) => {
-              const isActive = i === verseIdx
-              return (
-                <motion.div
-                  key={q.reference}
-                  className="flex flex-col items-center justify-center [grid-area:1/1]"
-                  aria-hidden={!isActive}
-                  initial={false}
-                  animate={
-                    isActive
-                      ? { opacity: 1, y: 0, filter: "blur(0px)" }
-                      : { opacity: 0, y: 8, filter: "blur(4px)" }
-                  }
-                  transition={
-                    isActive
-                      ? { duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }
-                      : { duration: 0.5, ease: "easeIn" }
-                  }
-                  style={{ pointerEvents: isActive ? "auto" : "none" }}
-                >
-                  <blockquote
-                    className="font-goudy-italic mx-auto max-w-2xl text-[1.2rem] font-semibold leading-relaxed sm:text-[1.45rem] md:text-[1.65rem]"
-                    style={{ color: "#FFFFFF", textShadow: PHOTO_TEXT_SHADOW }}
-                  >
-                    <span aria-hidden className={`${theSeasons.className} mr-1 align-[-0.2em] text-[1.6em] leading-none`} style={{ color: VERSE_ACCENT }}>
-                      “
-                    </span>
-                    {q.text}
-                    <span aria-hidden className={`${theSeasons.className} ml-1 align-[-0.2em] text-[1.6em] leading-none`} style={{ color: VERSE_ACCENT }}>
-                      ”
-                    </span>
-                  </blockquote>
-                  <figcaption
-                    className={`${cinzel.className} mt-5 text-[0.75rem] font-semibold uppercase tracking-[0.22em] sm:mt-6 sm:text-[0.8125rem]`}
-                    style={{ color: VERSE_ACCENT, textShadow: PHOTO_TEXT_SHADOW }}
-                  >
-                    — {q.reference}
-                  </figcaption>
-                </motion.div>
-              )
-            })}
-          </div>
-
-          {quotes.length > 1 && (
-            <div className="mt-8 flex items-center gap-2 sm:mt-9" role="tablist" aria-label="Choose a verse">
-              {quotes.map((q, i) => (
-                <button
-                  key={q.reference}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === verseIdx}
-                  aria-label={q.reference}
-                  onClick={() => {
-                    setVerseIdx(i)
-                    setImageIdx((idx) => (idx + 1) % images.length)
-                  }}
-                  className="h-1.5 rounded-full transition-all duration-500"
-                  style={{
-                    width: i === verseIdx ? "1.5rem" : "0.375rem",
-                    background: i === verseIdx ? "var(--color-motif-accent)" : "rgb(255 255 255 / 55%)",
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </figure>
-  )
-}
-
+// Upload your photos & videos: section heading + one card with the shared-album QR and links
 export function SnapShare() {
   const { fg: qrFg, bg: qrBg } = useQrColors() // --color-qr-fg / --color-qr-bg in globals.css
   const siteConfig = useSiteConfig()
   const content = siteConfig.snapShare
-  const [copiedHashtagIndex, setCopiedHashtagIndex] = useState<number | null>(null)
-  const [copiedAllHashtags, setCopiedAllHashtags] = useState(false)
   const [copiedDriveLink, setCopiedDriveLink] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
   const { groomNickname, brideNickname } = siteConfig.couple
   const coupleDisplayName = `${groomNickname} & ${brideNickname}`
   const fill = (text: string) => text.split("{couple}").join(coupleDisplayName)
-
-  const websiteUrl = typeof window !== "undefined" ? window.location.href : "https://example.com"
   const uploadLink = content.googleDriveLink
-  const hashtags = content.hashtag
-  const allHashtagsText = hashtags.join(" ")
-  const sanitizedGroomName = groomNickname.replace(/\s+/g, "")
-  const sanitizedBrideName = brideNickname.replace(/\s+/g, "")
-  const shareText = `${fill(content.social.shareText)} ${websiteUrl} ${allHashtagsText}`
-
-  // Plain display mode never shows the photo card
-  const isPlain = siteConfig.loadingScreen?.display === "plain"
-  const showMoments = content.moments.show && !isPlain && content.moments.images.length > 0
-  const [momentA, momentB, momentC] = content.moments.images
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640)
@@ -375,19 +174,6 @@ export function SnapShare() {
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
-
-  const shareOnSocial = (platform: keyof typeof SOCIAL) => {
-    const encodedUrl = encodeURIComponent(websiteUrl)
-    const encodedText = encodeURIComponent(shareText)
-    const urls: Record<string, string> = {
-      instagram: "https://www.instagram.com/",
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-      twitter: `https://twitter.com/intent/tweet?text=${encodedText}`,
-      tiktok: "https://www.tiktok.com/",
-    }
-    const target = urls[platform]
-    if (target) window.open(target, "_blank", "width=600,height=400")
-  }
 
   const downloadCanvas = (id: string, filename: string) => {
     const canvas = document.getElementById(id) as HTMLCanvasElement | null
@@ -407,197 +193,7 @@ export function SnapShare() {
     }
   }
 
-  const qrFrame = (
-    id: string,
-    value: string,
-    level: "L" | "M" | "Q" | "H",
-    note?: string,
-  ) => (
-    <div
-      className="mx-auto flex w-full max-w-[240px] flex-col items-center rounded-2xl p-3 sm:p-4"
-      style={{ background: IVORY, boxShadow: `0 0 0 1px ${HAIRLINE}, 0 0 0 5px color-mix(in srgb, var(--color-motif-medium) 12%, transparent), 0 14px 28px -20px color-mix(in srgb, var(--color-welcome-navy) 50%, transparent)` }}
-    >
-      <div className="flex w-full max-w-full justify-center overflow-hidden rounded-xl bg-white">
-        <QRCodeCanvas
-          id={id}
-          value={value}
-          size={isMobile ? 160 : 200}
-          level={level}
-          includeMargin
-          className="h-auto max-w-full"
-          fgColor={qrFg}
-          bgColor={qrBg}
-        />
-      </div>
-      {note ? (
-        <p className={`font-goudy-italic ${ct.body} mt-2 text-center sm:mt-3`} style={{ color: palette.label }}>
-          {note}
-        </p>
-      ) : null}
-    </div>
-  )
-
-  const websiteCard = content.website.show && (
-    <ContentCard>
-      <CardTitle>{content.website.title}</CardTitle>
-      <p className={`font-goudy-italic ${ct.body} text-center`} style={{ color: palette.body }}>
-        {fill(content.website.description)}
-      </p>
-      {qrFrame("snapshare-qr", websiteUrl, "M")}
-      <div className="flex justify-center">
-        <PrimaryButton
-          onClick={() =>
-            downloadCanvas(
-              "snapshare-qr",
-              `${sanitizedGroomName.toLowerCase()}-${sanitizedBrideName.toLowerCase()}-wedding-qr.png`,
-            )
-          }
-        >
-          <Download className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />
-          {content.website.downloadButton}
-        </PrimaryButton>
-      </div>
-      <p className={`font-goudy-italic ${ct.body} text-center`} style={{ color: TEAL_SOFT }}>
-        {content.website.note}
-      </p>
-    </ContentCard>
-  )
-
-  const hashtagsCard = content.hashtags.show && hashtags.length > 0 && (
-    <ContentCard>
-      <CardTitle as="h5">{content.hashtags.title}</CardTitle>
-      <div className="w-full min-w-0 space-y-2">
-        {hashtags.map((hashtag, index) => {
-          const isCopied = copiedHashtagIndex === index
-          return (
-            <button
-              key={index}
-              type="button"
-              onClick={() =>
-                copyText(hashtag, () => {
-                  setCopiedHashtagIndex(index)
-                  setTimeout(() => setCopiedHashtagIndex(null), 2000)
-                })
-              }
-              className="flex w-full min-w-0 items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 transition-all duration-200 active:scale-[0.98]"
-              style={{
-                background: isCopied ? PALE : IVORY,
-                boxShadow: `inset 0 0 0 1px ${isCopied ? "color-mix(in srgb, var(--color-motif-yellow) 75%, transparent)" : HAIRLINE}`,
-              }}
-            >
-              <span
-                className={`font-goudy-italic ${ct.body} min-w-0 flex-1 break-all text-left font-semibold`}
-                style={{ color: isCopied ? palette.accent : palette.heading }}
-              >
-                {hashtag}
-              </span>
-              <span
-                className={`${cinzel.className} flex flex-shrink-0 items-center gap-1 whitespace-nowrap ${sectionType.label} font-semibold uppercase tracking-wider`}
-                style={{ color: isCopied ? "color-mix(in srgb, var(--color-motif-yellow) 70%, #2C3619)" : BLUE }}
-              >
-                {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                {isCopied ? content.hashtags.copied : content.hashtags.copy}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-      {hashtags.length > 1 && (
-        <button
-          type="button"
-          onClick={() =>
-            copyText(allHashtagsText, () => {
-              setCopiedAllHashtags(true)
-              setTimeout(() => setCopiedAllHashtags(false), 2000)
-            })
-          }
-          className="flex w-full items-center justify-center gap-1.5 rounded-full py-2.5 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
-          style={
-            copiedAllHashtags
-              ? { background: PALE, color: palette.accent }
-              : { background: BUTTON, color: IVORY, boxShadow: BUTTON_SHADOW }
-          }
-        >
-          {copiedAllHashtags ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          <span className={`${cinzel.className} ${ct.btn} font-semibold uppercase tracking-[0.12em]`}>
-            {copiedAllHashtags ? content.hashtags.allCopied : content.hashtags.copyAll}
-          </span>
-        </button>
-      )}
-    </ContentCard>
-  )
-
-  const socialCard = content.social.show && content.social.platforms.length > 0 && (
-    <ContentCard>
-      <CardTitle as="h5">{content.social.title}</CardTitle>
-      <p className={`font-goudy-italic ${ct.body} text-center`} style={{ color: palette.body }}>
-        {fill(content.social.description)}
-      </p>
-      <div className="grid w-full min-w-0 grid-cols-2 gap-2 sm:gap-3">
-        {content.social.platforms.map((platform) => {
-          const { Icon, label } = SOCIAL[platform]
-          return (
-            <button
-              key={platform}
-              type="button"
-              onClick={() => shareOnSocial(platform)}
-              className="group flex w-full min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-3 transition-all duration-200 hover:-translate-y-0.5"
-              style={{ background: BUTTON, boxShadow: BUTTON_SHADOW }}
-            >
-              <Icon className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5" style={{ color: IVORY }} />
-              <span className={`${cinzel.className} ${ct.btn} truncate font-semibold uppercase tracking-[0.08em]`} style={{ color: IVORY }}>
-                {label}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-    </ContentCard>
-  )
-
-  const uploadCard = uploadLink && (
-    <ContentCard>
-      <p
-        className={`${cinzel.className} ${ct.label} mx-auto w-full rounded-full px-3 py-1.5 text-center uppercase leading-snug tracking-[0.16em] break-words`}
-        style={{ color: palette.heading, background: PALE, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
-      >
-        {content.upload.badge}
-      </p>
-      <p className={`font-goudy-italic ${ct.body} break-words text-center`} style={{ color: palette.body }}>
-        {content.instructions}
-      </p>
-      {qrFrame("album-qr", uploadLink, "H", content.upload.scanNote)}
-      <span className="mx-auto block h-px w-24 sm:w-32" style={insideDividerLineStyle} aria-hidden />
-      <div className="flex w-full flex-col justify-center gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
-        <PrimaryButton
-          onClick={() =>
-            copyText(uploadLink, () => {
-              setCopiedDriveLink(true)
-              setTimeout(() => setCopiedDriveLink(false), 2000)
-            })
-          }
-          active={copiedDriveLink}
-        >
-          {copiedDriveLink ? <Check className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" /> : <Copy className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />}
-          {copiedDriveLink ? content.upload.copied : content.upload.copyLink}
-        </PrimaryButton>
-        <PrimaryButton onClick={() => downloadCanvas("album-qr", "album-qr.png")}>
-          <Download className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />
-          {content.upload.downloadQr}
-        </PrimaryButton>
-        <a
-          href={uploadLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 sm:px-6 ${ct.btn}`}
-          style={{ background: BUTTON, color: IVORY, boxShadow: BUTTON_SHADOW, border: "1px solid rgb(255 255 255 / 70%)" }}
-        >
-          <Share2 className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />
-          {content.upload.uploadButton}
-        </a>
-      </div>
-    </ContentCard>
-  )
+  if (!uploadLink) return null
 
   return (
     <section
@@ -623,63 +219,70 @@ export function SnapShare() {
           </div>
         </div>
 
-        {showMoments ? (
-          <div className="mt-6 grid grid-cols-1 items-start gap-5 sm:mt-8 sm:gap-6 md:mt-10 lg:grid-cols-2 lg:gap-8">
-            <ContentCard>
-              <CardTitle>{content.moments.title}</CardTitle>
-              <div className="grid w-full min-w-0 grid-cols-2 gap-2 sm:gap-3">
-                {[momentA, momentB].filter(Boolean).map((src, i) => (
-                  <div key={src} className="relative aspect-square overflow-hidden rounded-xl" style={{ boxShadow: `0 0 0 1px ${HAIRLINE}` }}>
-                    <Image src={src} alt={`Wedding moment ${i + 1}`} fill sizes="(max-width: 1024px) 45vw, 22vw" className="object-cover" />
-                  </div>
-                ))}
-                {momentC ? (
-                  <div className="relative col-span-2 aspect-[3/2] overflow-hidden rounded-xl" style={{ boxShadow: `0 0 0 1px ${HAIRLINE}` }}>
-                    <Image src={momentC} alt="Wedding moment 3" fill sizes="(max-width: 1024px) 90vw, 45vw" className="object-cover" />
-                  </div>
-                ) : null}
+        <div className="mx-auto mt-6 w-full max-w-lg sm:mt-8 md:mt-10">
+          <ContentCard>
+            <p
+              className={`${cinzel.className} ${ct.label} mx-auto w-full rounded-full px-3 py-1.5 text-center uppercase leading-snug tracking-[0.16em] break-words`}
+              style={{ color: palette.heading, background: PALE, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+            >
+              {content.upload.badge}
+            </p>
+            <p className={`font-goudy-italic ${ct.body} break-words text-center`} style={{ color: palette.body }}>
+              {content.instructions}
+            </p>
+            <div
+              className="mx-auto flex w-full max-w-[240px] flex-col items-center rounded-2xl p-3 sm:p-4"
+              style={{ background: IVORY, boxShadow: `0 0 0 1px ${HAIRLINE}, 0 0 0 5px color-mix(in srgb, var(--color-motif-medium) 12%, transparent), 0 14px 28px -20px color-mix(in srgb, var(--color-welcome-navy) 50%, transparent)` }}
+            >
+              <div className="flex w-full max-w-full justify-center overflow-hidden rounded-xl bg-white">
+                <QRCodeCanvas
+                  id="album-qr"
+                  value={uploadLink}
+                  size={isMobile ? 160 : 200}
+                  level="H"
+                  includeMargin
+                  className="h-auto max-w-full"
+                  fgColor={qrFg}
+                  bgColor={qrBg}
+                />
               </div>
-              <p className={`font-goudy-italic ${ct.body} text-center`} style={{ color: palette.body }}>
-                {content.moments.caption}
-              </p>
-            </ContentCard>
-
-            <div className="w-full min-w-0 space-y-5 sm:space-y-6">
-              {websiteCard}
-              {hashtagsCard}
-              {socialCard}
-              {uploadCard}
+              {content.upload.scanNote ? (
+                <p className={`font-goudy-italic ${ct.body} mt-2 text-center sm:mt-3`} style={{ color: palette.label }}>
+                  {content.upload.scanNote}
+                </p>
+              ) : null}
             </div>
-          </div>
-        ) : (
-          // Without the photo card, the remaining cards share a balanced two-column grid
-          <div className="mt-6 grid grid-cols-1 items-start gap-5 sm:mt-8 sm:gap-6 md:mt-10 lg:grid-cols-2 lg:gap-8">
-            <div className="w-full min-w-0 space-y-5 sm:space-y-6">
-              {websiteCard}
-              {hashtagsCard}
+            <span className="mx-auto block h-px w-24 sm:w-32" style={insideDividerLineStyle} aria-hidden />
+            <div className="flex w-full flex-col justify-center gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
+              <PrimaryButton
+                onClick={() =>
+                  copyText(uploadLink, () => {
+                    setCopiedDriveLink(true)
+                    setTimeout(() => setCopiedDriveLink(false), 2000)
+                  })
+                }
+                active={copiedDriveLink}
+              >
+                {copiedDriveLink ? <Check className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" /> : <Copy className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />}
+                {copiedDriveLink ? content.upload.copied : content.upload.copyLink}
+              </PrimaryButton>
+              <PrimaryButton onClick={() => downloadCanvas("album-qr", "album-qr.png")}>
+                <Download className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />
+                {content.upload.downloadQr}
+              </PrimaryButton>
+              <a
+                href={uploadLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 sm:px-6 ${ct.btn}`}
+                style={{ background: BUTTON, color: IVORY, boxShadow: BUTTON_SHADOW, border: "1px solid rgb(255 255 255 / 70%)" }}
+              >
+                <Share2 className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />
+                {content.upload.uploadButton}
+              </a>
             </div>
-            <div className="w-full min-w-0 space-y-5 sm:space-y-6">
-              {socialCard}
-              {uploadCard}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-6 space-y-2 text-center sm:mt-8 md:mt-10">
-          <p className={`font-goudy-italic ${ct.bodyLg}`} style={{ color: OUTSIDE_TEXT_MUTED, textShadow: READABLE_SHADOW }}>
-            {fill(content.closing)}
-          </p>
-          <p
-            className={`${cinzel.className} ${ct.label} uppercase tracking-[0.18em] sm:tracking-[0.2em]`}
-            style={{ color: OUTSIDE_TEXT, textShadow: READABLE_SHADOW }}
-          >
-            {content.closingTag}
-          </p>
+          </ContentCard>
         </div>
-
-        {content.verses?.show && content.verses.images.length > 0 && content.verses.quotes.length > 0 ? (
-          <VersePanel eyebrow={content.verses.eyebrow} images={content.verses.images} quotes={content.verses.quotes} />
-        ) : null}
       </div>
     </section>
   )

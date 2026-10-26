@@ -1273,28 +1273,6 @@
   letter-spacing: -0.03em;
 }
 
-.env-invite-screen[data-phase="idle"] .env-invite-seal-btn {
-  animation: env-seal-breathe 2.8s ease-in-out infinite;
-}
-
-@keyframes env-seal-breathe {
-  0%,
-  100% {
-    filter: drop-shadow(0 8px 16px rgba(91, 74, 55, 0.22))
-      drop-shadow(0 2px 5px rgba(154, 126, 74, 0.28));
-  }
-  50% {
-    filter: drop-shadow(0 12px 22px rgba(180, 154, 104, 0.38))
-      drop-shadow(0 4px 10px rgba(91, 74, 55, 0.22));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .env-invite-screen[data-phase="idle"] .env-invite-seal-btn {
-    animation: none;
-  }
-}
-
 .env-invite-seal-btn:disabled {
   cursor: default;
   pointer-events: none;
@@ -1318,10 +1296,6 @@
   background: var(--env-seal-gold);
   pointer-events: none;
   z-index: var(--z-seal);
-}
-
-.env-invite-screen[data-phase="seal-press"] .env-invite-seal-btn {
-  animation: none;
 }
 
 /* ── Hint ── */
@@ -2815,31 +2789,11 @@
     inset 0 2px 0 rgb(255 255 255 / 30%);
 }
 
-/* Wax seal: sunshine halo that gently pulses to invite a tap */
+/* Wax seal: soft navy shadow only, no glow */
 .env-invite-screen--plain .env-invite-seal-btn {
   filter:
     drop-shadow(0 8px 14px color-mix(in srgb, var(--env-navy) 30%, transparent))
     drop-shadow(0 2px 4px color-mix(in srgb, var(--env-navy) 20%, transparent));
-}
-
-.env-invite-screen--plain .env-invite-seal-wrap::before {
-  content: "";
-  position: absolute;
-  inset: -14%;
-  border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--env-sun) 45%, transparent) 0%, transparent 68%);
-  pointer-events: none;
-  animation: env-seal-halo 2.8s ease-in-out infinite;
-}
-
-.env-invite-screen--plain:not([data-phase="idle"]) .env-invite-seal-wrap::before {
-  animation: none;
-  opacity: 0;
-}
-
-@keyframes env-seal-halo {
-  0%, 100% { transform: scale(0.92); opacity: 0.55; }
-  50% { transform: scale(1.12); opacity: 1; }
 }
 
 /* "Tap the seal to open": plain navy text with a soft white glow so it reads over the video */
@@ -2932,12 +2886,6 @@
 /* Ghost date in faint navy */
 .env-invite-screen--plain .env-invite-ghost-date {
   color: var(--env-navy);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .env-invite-screen--plain .env-invite-seal-wrap::before {
-    animation: none;
-  }
 }
 
 /* ── Front pocket photos (two envelope photos) ──────────────────────────────
@@ -3148,10 +3096,10 @@
    light rose, shading comes from rose/cocoa tones only, and a fine grain and
    rose-gold details give the paper some texture. Kept last so it wins. */
 .env-invite-screen .env-invite-envelope {
-  --env-highlight: color-mix(in srgb, #F5C5C3 78%, #F69F9D);
-  --env-envelope: color-mix(in srgb, #F5C5C3 70%, #F69F9D);
+  --env-highlight: color-mix(in srgb, #1E4A8A 75%, #0B2A5B);
+  --env-envelope: color-mix(in srgb, #0B2A5B 85%, #1E4A8A);
   --env-rose-gold: color-mix(in srgb, #C9746E 70%, #E8B9A0);
-  --env-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .25 0 0 0 0 .28 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  --env-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .02 0 0 0 0 .07 0 0 0 0 .18 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Closed front: even rose paper, gentle depth toward the bottom and corners */
@@ -3176,7 +3124,7 @@
 
 /* Fold faces: cocoa shading only, no white highlight */
 .env-invite-screen .env-invite-envelope .env-invite-fold--tl {
-  background: linear-gradient(180deg, transparent 0%, rgb(120 50 60 / 8%) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgb(2 10 28 / 8%) 100%);
 }
 
 /* Crease hairlines: soft rose shadow, not white */
@@ -3196,7 +3144,7 @@
 
 /* Cast shadow of the closed flap onto the front, a touch stronger for depth */
 .env-invite-screen .env-invite-envelope .env-invite-flap-shadow {
-  background: linear-gradient(180deg, transparent 40%, rgb(120 50 60 / 20%) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgb(2 10 28 / 20%) 100%);
   transform: translateY(4px);
   filter: blur(3px);
 }
@@ -3210,22 +3158,22 @@
 
 .env-invite-screen .env-invite-envelope .env-invite-pocket-left {
   background:
-    linear-gradient(125deg, rgb(120 50 60 / 8%) 0%, transparent 58%),
+    linear-gradient(125deg, rgb(2 10 28 / 8%) 0%, transparent 58%),
     linear-gradient(160deg, var(--env-highlight) 0%, var(--env-envelope) 55%, var(--env-base) 100%);
 }
 
 .env-invite-screen .env-invite-envelope .env-invite-pocket-right {
   background:
-    linear-gradient(235deg, rgb(120 50 60 / 8%) 0%, transparent 58%),
+    linear-gradient(235deg, rgb(2 10 28 / 8%) 0%, transparent 58%),
     linear-gradient(200deg, var(--env-highlight) 0%, var(--env-envelope) 55%, var(--env-base) 100%);
 }
 
 .env-invite-screen .env-invite-envelope .env-invite-pocket-left::after {
-  background: linear-gradient(to bottom right, transparent 48%, rgb(120 50 60 / 14%) 49.5%, transparent 51.5%);
+  background: linear-gradient(to bottom right, transparent 48%, rgb(2 10 28 / 14%) 49.5%, transparent 51.5%);
 }
 
 .env-invite-screen .env-invite-envelope .env-invite-pocket-right::after {
-  background: linear-gradient(to bottom left, transparent 48%, rgb(120 50 60 / 14%) 49.5%, transparent 51.5%);
+  background: linear-gradient(to bottom left, transparent 48%, rgb(2 10 28 / 14%) 49.5%, transparent 51.5%);
 }
 
 /* Liner (inside of back + flap): drop the white overlay, keep the lattice */
@@ -3245,4 +3193,21 @@
     linear-gradient(0deg, color-mix(in srgb, var(--env-liner-ink) 14%, transparent) 0%, transparent 45%),
     var(--env-liner-pattern) center top / 32px 32px repeat,
     var(--env-liner);
+}
+
+/* Card message between the date and the names: a full sentence, so smaller than the old "You are invited" */
+.env-invite-screen .env-invite-letter-invited--message {
+  display: block;
+  max-width: 88%;
+  margin: 0.35em auto 0.25em;
+  font-size: clamp(0.7rem, calc(var(--env-letter-w, 300px) * 0.05), 0.95rem);
+  line-height: 1.35;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* "JAN | 23 | 2027" is wider than the old numeric date, so step it down to stay on one line */
+.env-invite-screen .env-invite-letter-date {
+  font-size: 1.4em;
+  letter-spacing: 0.06em;
 }

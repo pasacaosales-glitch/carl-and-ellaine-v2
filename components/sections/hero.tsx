@@ -162,14 +162,14 @@ function CountdownUnit({
   const display = pad ? pad2(value) : String(value)
 
   return (
-    <div className="flex min-w-[3rem] flex-1 flex-col items-center sm:min-w-[3.5rem]">
+    <div className="flex min-w-[2.5rem] flex-1 flex-col items-center sm:min-w-[3rem]">
       <span
-        className={`${cinzel.className} home-hero-countdown-value text-[clamp(1.2rem,5.4vw,1.75rem)] font-semibold leading-none tabular-nums tracking-[0.04em]`}
+        className={`${cinzel.className} home-hero-countdown-value text-[clamp(0.95rem,4.3vw,1.4rem)] font-semibold leading-none tabular-nums tracking-[0.04em]`}
       >
         {display}
       </span>
       <span
-        className={`${cinzel.className} home-hero-countdown-label mt-1.5 text-[0.48rem] font-medium uppercase tracking-[0.16em] sm:mt-2 sm:text-[0.54rem]`}
+        className={`${cinzel.className} home-hero-countdown-label mt-1 text-[0.42rem] font-medium uppercase tracking-[0.16em] sm:mt-1.5 sm:text-[0.48rem]`}
       >
         {label}
       </span>
@@ -179,17 +179,17 @@ function CountdownUnit({
 
 function HeroCountdown() {
   const timeLeft = useCeremonyCountdown()
-  const colonClass = `${cinzel.className} home-hero-countdown-value shrink-0 self-start px-0.5 text-[clamp(1.2rem,5.4vw,1.75rem)] font-semibold leading-none tabular-nums sm:px-1`
+  const colonClass = `${cinzel.className} home-hero-countdown-value shrink-0 self-start px-0.5 text-[clamp(0.95rem,4.3vw,1.4rem)] font-semibold leading-none tabular-nums sm:px-1`
 
   return (
-    <div className="relative z-10 w-full px-4 py-4 sm:px-6 sm:py-5">
+    <div className="relative z-10 w-full px-4 py-3 sm:px-6 sm:py-4">
       <p
-        className={`${cinzel.className} home-hero-countdown-heading text-center text-[0.58rem] font-semibold uppercase tracking-[0.22em] sm:text-[0.64rem] sm:tracking-[0.26em]`}
+        className={`${cinzel.className} home-hero-countdown-heading text-center text-[0.5rem] font-semibold uppercase tracking-[0.22em] sm:text-[0.56rem] sm:tracking-[0.26em]`}
       >
         Time left til we say I do
       </p>
       <div
-        className="mx-auto mt-2 flex max-w-md items-start justify-center sm:mt-2.5 sm:max-w-lg"
+        className="mx-auto mt-1.5 flex max-w-xs items-start justify-center sm:mt-2 sm:max-w-sm"
         aria-live="polite"
         aria-label={`${timeLeft.days} days, ${timeLeft.hours} hours, ${timeLeft.minutes} minutes, ${timeLeft.seconds} seconds`}
       >
