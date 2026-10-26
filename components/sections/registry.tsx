@@ -135,7 +135,7 @@ export function Registry() {
     }
   }, [zoomQr])
   const qrFileName = (label: string, src: string) =>
-    `${label.replace(/[^a-z0-9]+/gi, "-")}-QR${src.slice(src.lastIndexOf(".")) || ".png"}`
+    `${(label || "Gift").replace(/[^a-z0-9]+/gi, "-")}-QR${src.slice(src.lastIndexOf(".")) || ".png"}`
 
   const accounts = content.showAccounts
     ? content.accounts.filter((a) => a.show && (a.accountNumber || a.qr))
@@ -312,13 +312,15 @@ export function Registry() {
                       className="relative flex flex-col items-center"
                     >
                       {/* Bank name between hairlines */}
-                      <div className="mb-4 flex items-center justify-center gap-3">
-                        <span className="h-px w-8 sm:w-10" style={{ background: `linear-gradient(to right, transparent, ${c.line})` }} aria-hidden />
-                        <p className={`${theSeasons.className} text-2xl uppercase leading-none tracking-[0.22em] sm:text-[1.75rem]`} style={{ color: c.title }}>
-                          {active.label}
-                        </p>
-                        <span className="h-px w-8 sm:w-10" style={{ background: `linear-gradient(to left, transparent, ${c.line})` }} aria-hidden />
-                      </div>
+                      {active.label ? (
+                        <div className="mb-4 flex items-center justify-center gap-3">
+                          <span className="h-px w-8 sm:w-10" style={{ background: `linear-gradient(to right, transparent, ${c.line})` }} aria-hidden />
+                          <p className={`${theSeasons.className} text-2xl uppercase leading-none tracking-[0.22em] sm:text-[1.75rem]`} style={{ color: c.title }}>
+                            {active.label}
+                          </p>
+                          <span className="h-px w-8 sm:w-10" style={{ background: `linear-gradient(to left, transparent, ${c.line})` }} aria-hidden />
+                        </div>
+                      ) : null}
                       {active.qr ? (
                         <button
                           type="button"
@@ -458,9 +460,11 @@ export function Registry() {
             >
               <X className="h-4 w-4" />
             </button>
-            <p className={`${theSeasons.className} mb-3 text-lg uppercase tracking-[0.12em]`} style={{ color: c.title }}>
-              {zoomQr.label}
-            </p>
+            {zoomQr.label ? (
+              <p className={`${theSeasons.className} mb-3 text-lg uppercase tracking-[0.12em]`} style={{ color: c.title }}>
+                {zoomQr.label}
+              </p>
+            ) : null}
             <div className="relative mx-auto aspect-square w-full max-w-[18rem] overflow-hidden rounded-xl bg-white" style={{ boxShadow: `0 0 0 1px ${c.glow}` }}>
               <Image src={zoomQr.src} alt={`${zoomQr.label} QR code`} fill unoptimized sizes="288px" className="object-contain p-2" />
             </div>

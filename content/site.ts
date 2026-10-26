@@ -1272,8 +1272,8 @@ export const siteConfig = {
     saveQrLabel: "",
     zoomNote: "Scan with your banking or e-wallet app, or save it and upload from your gallery.",
     accounts: [
-      { show: true, label: "BDO", accountName: "", accountNumber: "", qr: "/QR/new-QR-BDO.png" },
-      { show: false, label: "BDO", accountName: "", accountNumber: "", qr: "" },
+      { show: true, label: "", accountName: "", accountNumber: "", qr: "/QR/new-QR-BDO.png" },
+      { show: false, label: "", accountName: "", accountNumber: "", qr: "" },
     ] as { show: boolean; label: string; accountName: string; accountNumber: string; qr: string }[],
     // Leave any path "" to hide that decoration
     decos: { ...SECTION_DECOS },
