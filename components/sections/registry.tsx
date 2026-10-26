@@ -5,7 +5,7 @@ import { createPortal } from "react-dom"
 import Image from "next/image"
 import localFont from "next/font/local"
 import { Cinzel } from "next/font/google"
-import { Download, Expand, Gift, Heart, X } from "lucide-react"
+import { Download, Gift, Heart, X } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
@@ -40,6 +40,9 @@ const onBgLine = "color-mix(in srgb, white 85%, transparent)"
 const ct = {
   body: sectionType.text,
   bodyLg: sectionType.textRelaxed,
+  // Same sizes as the Details venue panel
+  label: "text-[11px] sm:text-xs md:text-sm",
+  panelBody: "text-xs sm:text-sm md:text-base",
 } as const
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -67,6 +70,24 @@ function DiamondDivider() {
       <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-motif-accent)" }} />
       <span className="h-px w-10 sm:w-16" style={{ background: `linear-gradient(to left, transparent, ${onBgLine})` }} />
     </div>
+  )
+}
+
+// The Seasons has no clean glyphs for symbols / digits — render only those
+// characters (e.g. "&", ",", "-", numbers) in Cinzel, keep letters in The Seasons.
+function SpecialCharFont({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/([^\p{L}\s]+)/u).map((part, i) =>
+        i % 2 === 1 ? (
+          <span key={i} className={`${cinzel.className} tracking-normal`}>
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
   )
 }
 
@@ -185,7 +206,7 @@ export function Registry() {
         <div className="relative z-20 mx-auto max-w-2xl px-4 sm:px-6 md:px-8">
           {/* Letter card */}
           <motion.div
-            className="relative mt-8 rounded-[1.75rem] px-7 pb-10 pt-12 text-center sm:mt-10 sm:rounded-[2.25rem] sm:px-12 sm:pb-12 sm:pt-14 md:px-14"
+            className="relative mt-8 rounded-[1.75rem] px-4 pb-10 pt-12 text-center sm:mt-10 sm:rounded-[2.25rem] sm:px-8 sm:pb-12 sm:pt-14 md:px-10"
             style={cardStyle}
             variants={staggerVariants}
             initial={initial}
@@ -228,163 +249,6 @@ export function Registry() {
                 </motion.p>
               ))}
             </div>
-
-            {/* E-gift accounts — toggle between them; tap the QR to enlarge, Save QR to download */}
-            {active && (
-              <motion.div variants={itemVariants} className="relative mt-8 sm:mt-9">
-                <div className="flex items-center justify-center gap-2" aria-hidden>
-                  <span className="h-px w-8 sm:w-12" style={{ background: `linear-gradient(to right, transparent, ${c.line})` }} />
-                  <span className="h-1 w-1 rotate-45" style={{ background: "var(--color-motif-accent)" }} />
-                  <span className="h-px w-8 sm:w-12" style={{ background: `linear-gradient(to left, transparent, ${c.line})` }} />
-                </div>
-                {content.accountsTitle ? (
-                  <p
-                    className={`${cinzel.className} mt-3 text-[0.65rem] font-semibold uppercase tracking-[0.22em] sm:text-xs`}
-                    style={{ color: c.eyebrow }}
-                  >
-                    {content.accountsTitle}
-                  </p>
-                ) : null}
-                {content.accountsNote ? (
-                  <p className="font-goudy-italic mt-1 text-[0.75rem] sm:text-sm" style={{ color: c.soft }}>
-                    {content.accountsNote}
-                  </p>
-                ) : null}
-
-                {/* Toggle: one equal-width segment per account */}
-                {accounts.length > 1 && (
-                  <div
-                    role="tablist"
-                    aria-label={content.accountsTitle}
-                    className="mx-auto mt-4 grid w-full max-w-[17rem] gap-1 rounded-full p-1"
-                    style={{
-                      gridTemplateColumns: `repeat(${accounts.length}, minmax(0, 1fr))`,
-                      background: "#FFFFFF",
-                      boxShadow: `inset 0 0 0 1px ${c.cardEdge}, 0 6px 16px -10px color-mix(in srgb, var(--color-welcome-navy) 40%, transparent)`,
-                    }}
-                  >
-                    {accounts.map((account, i) => {
-                      const selected = i === activeIndex
-                      return (
-                        <button
-                          key={`${account.label}-${i}`}
-                          type="button"
-                          role="tab"
-                          id={`registry-tab-${i}`}
-                          aria-selected={selected}
-                          aria-controls="registry-tabpanel"
-                          onClick={() => setActiveTab(i)}
-                          className={`${cinzel.className} relative rounded-full py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)] sm:text-[0.74rem]`}
-                          style={{ color: selected ? buttonText : c.title }}
-                        >
-                          {selected && (
-                            <motion.span
-                              layoutId="registry-tab-pill"
-                              className="absolute inset-0 rounded-full"
-                              style={{
-                                background: buttonBg,
-                                boxShadow: "0 6px 14px -8px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
-                              }}
-                              transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 34 }}
-                              aria-hidden
-                            />
-                          )}
-                          <span className="relative">{account.label}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-
-                <div
-                  id="registry-tabpanel"
-                  role={accounts.length > 1 ? "tabpanel" : undefined}
-                  aria-labelledby={accounts.length > 1 ? `registry-tab-${activeIndex}` : undefined}
-                  className="mx-auto mt-5 max-w-[17.5rem]"
-                >
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
-                      key={activeIndex}
-                      initial={reduceMotion ? false : { opacity: 0, y: 10, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                      transition={{ duration: 0.28, ease }}
-                      className="relative flex flex-col items-center"
-                    >
-                      {/* Bank name between hairlines */}
-                      {active.label ? (
-                        <div className="mb-4 flex items-center justify-center gap-3">
-                          <span className="h-px w-8 sm:w-10" style={{ background: `linear-gradient(to right, transparent, ${c.line})` }} aria-hidden />
-                          <p className={`${theSeasons.className} text-2xl uppercase leading-none tracking-[0.22em] sm:text-[1.75rem]`} style={{ color: c.title }}>
-                            {active.label}
-                          </p>
-                          <span className="h-px w-8 sm:w-10" style={{ background: `linear-gradient(to left, transparent, ${c.line})` }} aria-hidden />
-                        </div>
-                      ) : null}
-                      {active.qr ? (
-                        <button
-                          type="button"
-                          onClick={() => setZoomQr({ src: active.qr, label: active.label })}
-                          className="group relative aspect-square w-full max-w-[15rem] rounded-2xl bg-white p-2.5 transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)] sm:max-w-[16rem]"
-                          style={{ boxShadow: `0 0 0 1px ${c.cardEdge}, 0 18px 32px -18px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)` }}
-                          aria-label={`Enlarge ${active.label} QR code`}
-                        >
-                          <span className="relative block h-full w-full">
-                            <Image
-                              src={active.qr}
-                              alt={`${active.label} QR code`}
-                              fill
-                              unoptimized
-                              sizes="256px"
-                              className="object-contain"
-                            />
-                          </span>
-                          <span
-                            className="absolute -bottom-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full text-white shadow-md"
-                            style={{ background: buttonBg, boxShadow: "0 0 0 2px #FFFFFF" }}
-                            aria-hidden
-                          >
-                            <Expand className="h-3.5 w-3.5" />
-                          </span>
-                        </button>
-                      ) : (
-                        <span
-                          className={`${theSeasons.className} flex h-14 w-14 items-center justify-center rounded-full text-xl`}
-                          style={{ background: `color-mix(in srgb, ${c.glow} 80%, transparent)`, color: c.title }}
-                          aria-hidden
-                        >
-                          {active.label.charAt(0)}
-                        </span>
-                      )}
-                      {active.accountName ? (
-                        <p className="font-goudy-italic relative mt-4 text-sm" style={{ color: c.body }}>
-                          {active.accountName}
-                        </p>
-                      ) : null}
-                      {active.accountNumber ? (
-                        <p
-                          className={`${cinzel.className} relative mt-0.5 text-[0.82rem] font-semibold tabular-nums tracking-[0.14em]`}
-                          style={{ color: c.title }}
-                        >
-                          {active.accountNumber}
-                        </p>
-                      ) : null}
-                      {active.qr && content.saveQrLabel ? (
-                        <a
-                          href={active.qr}
-                          download={qrFileName(active.label, active.qr)}
-                          className={`${cinzel.className} relative mt-3.5 inline-flex items-center gap-1.5 rounded-full border px-5 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:scale-[1.03] hover:brightness-110`}
-                          style={{ background: buttonBg, color: buttonText, borderColor: "rgb(255 255 255 / 70%)", boxShadow: "0 0 0 3px color-mix(in srgb, var(--color-motif-medium) 22%, transparent)" }}
-                        >
-                          <Download className="h-3 w-3" aria-hidden />
-                          {content.saveQrLabel}
-                        </a>
-                      ) : null}
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            )}
 
             <div className="h-6 sm:h-7" aria-hidden />
 
@@ -433,6 +297,145 @@ export function Registry() {
               })()}
               <Heart className="mx-auto mt-3 h-3.5 w-3.5" style={{ color: "var(--color-motif-accent)", fill: "var(--color-motif-accent)" }} aria-hidden />
             </motion.div>
+
+            {/* Toggle: one equal-width segment per account */}
+            {accounts.length > 1 && (
+              <motion.div
+                variants={itemVariants}
+                role="tablist"
+                aria-label={content.accountsTitle || "Gift accounts"}
+                className="mx-auto mt-7 grid w-full max-w-[17rem] gap-1 rounded-full p-1"
+                style={{
+                  gridTemplateColumns: `repeat(${accounts.length}, minmax(0, 1fr))`,
+                  background: "#FFFFFF",
+                  boxShadow: `inset 0 0 0 1px ${c.cardEdge}, 0 6px 16px -10px color-mix(in srgb, var(--color-welcome-navy) 40%, transparent)`,
+                }}
+              >
+                {accounts.map((account, i) => {
+                  const selected = i === activeIndex
+                  return (
+                    <button
+                      key={`${account.label}-${i}`}
+                      type="button"
+                      role="tab"
+                      id={`registry-tab-${i}`}
+                      aria-selected={selected}
+                      aria-controls="registry-tabpanel"
+                      onClick={() => setActiveTab(i)}
+                      className={`${cinzel.className} relative rounded-full py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)] sm:text-[0.74rem]`}
+                      style={{ color: selected ? buttonText : c.title }}
+                    >
+                      {selected && (
+                        <motion.span
+                          layoutId="registry-tab-pill"
+                          className="absolute inset-0 rounded-full"
+                          style={{
+                            background: buttonBg,
+                            boxShadow: "0 6px 14px -8px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
+                          }}
+                          transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 34 }}
+                          aria-hidden
+                        />
+                      )}
+                      <span className="relative">{account.label || `Option ${i + 1}`}</span>
+                    </button>
+                  )
+                })}
+              </motion.div>
+            )}
+
+            {/* Gift panel — mirrors the Details venue panel: icon + copy on the left, QR on the right (all screen sizes) */}
+            <motion.div
+              variants={itemVariants}
+              id="registry-tabpanel"
+              role={accounts.length > 1 ? "tabpanel" : undefined}
+              aria-labelledby={accounts.length > 1 ? `registry-tab-${activeIndex}` : undefined}
+              className="relative mt-7 rounded-2xl p-3 text-left sm:mt-8 sm:p-4 md:p-5"
+              style={{ background: c.accountCard }}
+            >
+              <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+                {/* Left: the copy */}
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={`${theSeasons.className} mb-1 text-base uppercase leading-tight tracking-[0.14em] sm:mb-1.5 sm:text-lg md:text-xl`}
+                    style={{ color: c.title }}
+                  >
+                    <SpecialCharFont text={content.accountsTitle || "Love Gift"} />
+                  </p>
+                  {active?.label ? (
+                    <p
+                      className={`${theSeasons.className} text-sm font-semibold uppercase leading-snug tracking-[0.06em] sm:text-base md:text-lg`}
+                      style={{ color: c.title }}
+                    >
+                      {active.label}
+                    </p>
+                  ) : null}
+                  {content.qrText ? (
+                    <p className={`${theSeasons.className} ${ct.panelBody} leading-relaxed tracking-[0.04em]`} style={{ color: c.body }}>
+                      <SpecialCharFont text={content.qrText} />
+                    </p>
+                  ) : null}
+                  {content.accountsNote ? (
+                    <p className={`font-goudy-italic mt-2 ${ct.panelBody}`} style={{ color: c.soft }}>
+                      {content.accountsNote}
+                    </p>
+                  ) : null}
+                  {active && (active.accountName || active.accountNumber) ? (
+                    <div className="mt-2.5 border-t pt-2" style={{ borderColor: c.glow }}>
+                      {active.accountName ? (
+                        <p className={`font-goudy-italic ${ct.panelBody}`} style={{ color: c.body }}>
+                          {active.accountName}
+                        </p>
+                      ) : null}
+                      {active.accountNumber ? (
+                        <p
+                          className={`${cinzel.className} mt-0.5 text-xs font-semibold tabular-nums tracking-[0.12em] sm:text-sm`}
+                          style={{ color: c.title }}
+                        >
+                          {active.accountNumber}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Right: QR — tap to enlarge */}
+                {active?.qr ? (
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={activeIndex}
+                      initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ duration: 0.25, ease }}
+                      className="flex flex-shrink-0 flex-col items-center gap-1.5 sm:gap-2"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setZoomQr({ src: active.qr, label: active.label })}
+                        className="relative rounded-lg bg-white p-1.5 shadow-sm transition-transform duration-300 hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)] sm:p-2 md:p-2.5"
+                        aria-label={`Enlarge ${active.label || "gift"} QR code`}
+                      >
+                        <span className="relative block h-20 w-20 sm:h-24 sm:w-24">
+                          <Image
+                            src={active.qr}
+                            alt={`${active.label || "Gift"} QR code`}
+                            fill
+                            unoptimized
+                            sizes="96px"
+                            className="object-contain"
+                          />
+                        </span>
+                      </button>
+                      <p className={`font-goudy-italic ${ct.label} max-w-[90px] text-center leading-snug`} style={{ color: c.eyebrow }}>
+                        {content.scanLabel || "Tap to enlarge"}
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
+                ) : null}
+              </div>
+            </motion.div>
+
           </motion.div>
         </div>
       </section>

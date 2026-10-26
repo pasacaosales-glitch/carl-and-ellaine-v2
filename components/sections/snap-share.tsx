@@ -76,6 +76,24 @@ const cardStyle = {
 } as const
 
 
+// The Seasons has no clean glyphs for symbols / digits — render only those
+// characters (e.g. "#", "&", numbers) in Cinzel, keep letters in The Seasons.
+function SpecialCharFont({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/([^\p{L}\s]+)/u).map((part, i) =>
+        i % 2 === 1 ? (
+          <span key={i} className={`${cinzel.className} tracking-normal`}>
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  )
+}
+
 function OutsideDivider() {
   return (
     <div className="flex items-center justify-center gap-1.5">
@@ -161,6 +179,8 @@ export function SnapShare() {
   const siteConfig = useSiteConfig()
   const content = siteConfig.snapShare
   const [copiedDriveLink, setCopiedDriveLink] = useState(false)
+  // Index of the hashtag just copied, or "all" for Copy All
+  const [copiedTag, setCopiedTag] = useState<number | "all" | null>(null)
   const [isMobile, setIsMobile] = useState(false)
 
   const { groomNickname, brideNickname } = siteConfig.couple
@@ -192,6 +212,13 @@ export function SnapShare() {
       console.error("Failed to copy: ", err)
     }
   }
+
+  const hashtags = content.hashtags.show ? content.hashtag.filter((tag) => tag.trim()) : []
+  const copyTag = (text: string, key: number | "all") =>
+    copyText(text, () => {
+      setCopiedTag(key)
+      setTimeout(() => setCopiedTag((prev) => (prev === key ? null : prev)), 2000)
+    })
 
   if (!uploadLink) return null
 
@@ -282,6 +309,57 @@ export function SnapShare() {
               </a>
             </div>
           </ContentCard>
+
+          {/* Wedding hashtags — tap one to copy it, or copy them all */}
+          {hashtags.length > 0 && (
+            <ContentCard className="mt-5 sm:mt-6">
+              <p
+                className={`${cinzel.className} ${ct.label} mx-auto w-full rounded-full px-3 py-1.5 text-center uppercase leading-snug tracking-[0.16em] break-words`}
+                style={{ color: palette.heading, background: PALE, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+              >
+                {content.hashtags.title}
+              </p>
+              <ul className="flex flex-col gap-2 sm:gap-2.5">
+                {hashtags.map((tag, i) => {
+                  const copied = copiedTag === i || copiedTag === "all"
+                  return (
+                    <li key={tag}>
+                      <button
+                        type="button"
+                        onClick={() => copyTag(tag, i)}
+                        className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)] sm:px-4 sm:py-3"
+                        style={{ background: IVORY, boxShadow: `0 0 0 1px ${HAIRLINE}, 0 10px 20px -16px color-mix(in srgb, var(--color-welcome-navy) 50%, transparent)` }}
+                        aria-label={`${copied ? content.hashtags.copied : content.hashtags.copy} ${tag}`}
+                      >
+                        <span
+                          className={`${theSeasons.className} min-w-0 flex-1 break-all text-[0.95rem] leading-snug tracking-[0.03em] sm:text-lg`}
+                          style={{ color: palette.heading }}
+                        >
+                          <SpecialCharFont text={tag} />
+                        </span>
+                        <span
+                          className={`${cinzel.className} flex flex-shrink-0 items-center gap-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] sm:text-[0.65rem]`}
+                          style={{ color: copied ? TEAL : BLUE }}
+                          aria-hidden
+                        >
+                          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                          <span className="hidden min-[400px]:inline">{copied ? content.hashtags.copied : content.hashtags.copy}</span>
+                        </span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+              {hashtags.length > 1 && (
+                <div className="flex justify-center pt-1">
+                  <PrimaryButton onClick={() => copyTag(hashtags.join(" "), "all")} active={copiedTag === "all"}>
+                    {copiedTag === "all" ? <Check className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" /> : <Copy className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />}
+                    {copiedTag === "all" ? content.hashtags.allCopied : content.hashtags.copyAll}
+                  </PrimaryButton>
+                </div>
+              )}
+            </ContentCard>
+          )}
         </div>
       </div>
     </section>

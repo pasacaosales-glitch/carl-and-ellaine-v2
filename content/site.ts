@@ -145,7 +145,7 @@ const RSVP = {
   coordinator: "{groom} / {bride}", // {groom} / {bride} → couple nicknames
   phone: "to be announced",
 }
-const HASHTAGS = ["#EllaineCarlWedding"] 
+const HASHTAGS = ["#CAPILingbuongDOMINGO", "#thisCARLovestheLLAINEto4ever", "#0123toInfinity"]
 
 // ── Attire guide (Event Details → Attire Guidelines) ────────────────────────
 // SHOW = which cards to display AND their order, top to bottom. Examples:
@@ -1243,7 +1243,7 @@ export const siteConfig = {
     ],
     thankYou: "", // "" hides the line
     signOff: "With joyful hearts,",
-    signature: "{bride} & {groom}", // "" falls back to "{groom} & {bride}" nicknames
+    signature: "{groom} & {bride}", // Carl & Ellaine — keep groom first, same as every other section
     // Colors — any CSS color or a palette token from app/globals.css (e.g. "var(--color-motif-accent)")
     colors: {
       title: "var(--color-welcome-navy)",                                              // "Gift Guide", account names
@@ -1269,7 +1269,10 @@ export const siteConfig = {
     showAccounts: true,
     accountsTitle: "",
     accountsNote: "",
-    saveQrLabel: "",
+    // Short text beside the QR (left of the QR panel, below the couple names)
+    qrText: "Should you wish to send a love gift, simply scan this QR code. Thank you for your generosity!",
+    saveQrLabel: "Save QR",
+    scanLabel: "Tap to enlarge", // caption under the QR
     zoomNote: "Scan with your banking or e-wallet app, or save it and upload from your gallery.",
     accounts: [
       { show: true, label: "", accountName: "", accountNumber: "", qr: "/QR/new-QR-BDO.png" },
@@ -1781,7 +1784,7 @@ Now, as they prepare to say yes before God and the people they love most, Cather
     },
     hashtags: {
       show: true,
-      title: "Wedding Hashtag",
+      title: "Wedding Hashtags",
       copy: "Copy",
       copied: "Copied",
       copyAll: "Copy All",
